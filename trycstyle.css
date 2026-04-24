@@ -1,0 +1,314 @@
+/* Global Background & Text Color */
+body {
+    background-color: #0f172a;  
+    color: #e6e6e6;           
+    font-family: 'Playfair Display', 'Georgia', serif; 
+}
+
+/* Title metadata heading (e.g., Author, Affiliation, etc.) */
+.quarto-title-meta-heading {
+    line-height: 1 !important;
+  }
+  
+  /* Metadata content (e.g., names, emails, etc.) */
+  .quarto-title-meta-contents p {
+    line-height: 1 !important;
+  }
+  
+
+/* Paragraph */
+p {
+    color: #c0c6d1 !important;            
+    line-height: 1.75 !important;         
+    font-size: 0.95rem !important;         
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+
+/* List */
+
+ul, ol {
+    color: #c0c6d1 !important;
+    font-size: 0.95rem !important;
+    line-height: 1.2 !important;   
+}
+
+
+/* Title Styles */
+.title {
+    font-size: 2.2rem;
+    color: #4DB8FF;          
+    text-align: center;
+    margin-bottom: 10px;
+    font-family: 'Playfair Display', 'Georgia', serif; 
+}
+
+/* Subtitle under the main title */
+.subtitle.lead {
+    font-size: 1.3rem !important;  
+    color: #c0c6d1;
+    text-align: center;
+    margin-top: 8px;
+    margin-bottom: 8px !important;
+    font-family: 'Playfair Display', 'Georgia', serif;
+}
+
+/* Section Title Styles */
+h1 {
+    color: #82AAFF;
+    font-size: 1.4rem;
+    border-bottom: 2px solid #4DB8FF;
+    padding-bottom: 5px;
+    margin-bottom: 30px;
+    font-family: 'Merriweather', 'Georgia', serif;
+}
+
+h2 {
+    color: #4DB8FF;
+    font-size: 1.3rem;
+    margin-top: 15px;
+    font-weight: normal;
+    padding-bottom: 10px;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    font-family: 'Merriweather', 'Georgia', serif;
+}
+
+h3 {
+    color: #6AB8FF;
+    font-size: 1.2rem;
+    margin-top: 20px;
+    margin-bottom: 12px;
+    font-family: 'Merriweather', 'Georgia', serif;
+    font-weight: 500;
+}
+
+h4 {
+    color: #7bbfff;
+    font-size: 1.1rem;
+    margin-top: 15px;
+    margin-bottom: 8px;
+    font-style: normal;
+    border-bottom: none;
+    font-family: 'Merriweather', 'Georgia', serif;
+    font-weight: normal;
+}
+
+h5 {
+    color: #7bbfff;
+    font-size: 1rem;
+    margin-top: 10px;
+    margin-bottom: 6px;
+    border-bottom: none;
+    font-family: 'Merriweather', 'Georgia', serif;
+    font-weight: normal;
+}
+
+h6 {
+    color: #7bbfff;
+    font-size: 0.9rem;
+    margin-top: 8px;
+    margin-bottom: 4px;
+    font-family: 'Merriweather', 'Georgia', serif;
+    font-weight: lighter;
+    font-style: italic;
+    border-bottom: none;
+}
+
+h2 {
+    border-bottom: 2px solid #37435f;
+}
+
+h3 {
+    border-bottom: 1px solid #1a263f;  
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 1.5em;  /* space above h*/
+}
+
+h1 + h2,
+h2 + h3,
+h3 + h4 {
+    margin-top: 1.2em !important;  /* space among h */
+}
+
+
+/* Sidebar */
+#sidebar {
+    background-color: #1C2331;
+    border-right: 2px solid #4DB8FF;
+    padding: 15px;
+}
+
+/* TOC */
+#TOC a {
+    color: #82AAFF;
+    font-size: 0.9rem;  /* toc txt font */
+}
+
+#TOC a:hover {
+    color: #2d52a3 !important;  /* color on hover */
+}
+
+
+/* View Source Button */
+.toc-source {
+    margin-top: 15px;
+    text-align: center;
+}
+
+
+/* GitHub Button */
+.github-button {
+    display: inline-block;
+    background-color: #0f172a;
+    color: #121826;
+    border-radius: 5px;
+    padding: 5px 15px;
+    text-decoration: none;
+    font-weight: bold;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.github-button:hover {
+    background-color: #0f172a;
+    color: #fff;
+}
+
+
+/* Code Block */
+pre {
+    background-color: #1E1E2F;  
+    color: #E0E0E0;
+    border-radius: 8px;
+    padding: 10px;
+    border: 1px solid #4DB8FF;
+    overflow-x: auto;
+}
+
+
+/* Code Comment color */
+code span.co {
+    color: #1a8504;  
+}
+
+
+/* Table Styles */
+table {
+    border-collapse: collapse;
+    width: 95% !important;        
+    max-width: 800px !important;   
+    margin: 1.5em auto !important;       
+    border-collapse: collapse;  
+    background-color: transparent;
+    table-layout: auto;   
+}
+
+th, td {
+    padding: 10px 18px;  
+    text-align: center !important; 
+    font-size: 0.85rem;
+    color: #c0c0c0 !important; 
+    white-space: normal;  
+    display: table-cell;
+    vertical-align: middle;
+}
+
+table th, table td {
+    color: #c0c0c0 !important; 
+}
+
+table, th, td {
+    border: none;
+}
+
+table thead th {
+    border-bottom: 2px solid #2a4562;  
+}
+
+table thead tr:first-child th {
+    border-top: 2px solid #2a4562;
+}
+
+table tbody tr:last-child td {
+    border-bottom: 2px solid #2a4562;
+}
+
+th {
+    word-wrap: break-word; 
+    white-space: normal;
+}
+
+
+
+/* Link Styles */
+a {
+    color: #82AAFF;
+}
+
+a:hover {
+    color: #4DB8FF;
+    text-decoration: underline;
+}
+
+
+/* Inline Code Styles */
+p code, li code, span code, .inline code {
+    background-color: #18223a !important;  
+    color: #e0e0e0 !important;  
+    padding: 2px 4px;  
+    border-radius: 3px;  
+    font-family: monospace;  
+    display: inline-block;  
+}
+
+
+/* LaTeX */
+.math {
+    font-size: 0.95rem;     
+    color: #c0c0c0;        
+    font-family: "Cambria Math", "STIX Two Math", serif;  
+    font-weight: normal; 
+    line-height: 1.4;   
+}
+
+.math-display {
+    text-align: center;
+    margin: 10em 0;     
+    display: block;
+}
+
+.math-inline {
+    display: inline;
+    margin: 0 5px;       
+    vertical-align: middle;
+}
+
+mjx-container[jax="SVG"] {
+    margin: 10em 0;   
+}
+
+mjx-container[jax="SVG"] .MJX_Assistive_MathML {
+    margin: 1.5em 0;      
+}
+
+
+/* Quarto default */
+.quarto-title-meta-heading {
+    text-transform: capitalize !important;
+    font-weight: bold !important;
+    color: #9c9c9c !important; 
+    font-family: 'Merriweather', 'Georgia', serif;
+
+
+.quarto-title-meta-contents {
+    font-family: 'Playfair Display', 'Georgia', serif; 
+    font-size: 0.9rem;  
+    line-height: 1.5;  
+}

@@ -1,0 +1,64 @@
+---
+title: "5500"
+subtitle: "data str & alg"
+author: 
+  - name: "Troy Cheng, Stacy Che"
+    email: yc1317@georgetown.edu
+    affiliation: Georgetown University
+    corresponding: true
+df-print: kable
+title-block-banner: "#0a0e1a"
+title-block-banner-color: "#4DB8FF"
+execute:
+  warning: false
+date: 2025-04-28
+date-modified: last-modified
+format:
+  html:
+    embed-resources: true
+    toc: true                 
+    toc-title: "Contents"     
+    toc-location: right       
+    number-sections: true
+    number-depth: 3       
+    smooth-scroll: true       
+    css: trycstyle.css 
+    code-overflow: wrap
+include-in-header:
+  text: |
+    <link rel="shortcut icon" href="assets/gu.ico" type="image/x-icon">           
+highlight-style: nord       
+engine: knitr
+---
+
+
+
+
+```{=html}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const toc = document.getElementById("TOC");
+    if (toc) {
+        const sourceLink = document.createElement("div");
+        sourceLink.innerHTML = `
+            <div class="toc-source">
+                <a href="https://github.com/Davruun/datastr-alg-finalproj" 
+                   target="_blank" 
+                   class="github-button">
+                   <svg xmlns="http://www.w3.org/2000/svg" 
+                        viewBox="0 0 24 24" 
+                        width="16" 
+                        height="16" 
+                        fill="currentColor"
+                        style="vertical-align: middle; margin-right: 5px;">
+                     <path d="M12 0C5.373 0 0 5.373 0 12c0 5.303 3.438 9.8 8.207 11.387.6.113.82-.26.82-.577v-2.157c-3.338.726-4.033-1.416-4.033-1.416-.546-1.386-1.332-1.756-1.332-1.756-1.09-.745.083-.73.083-.73 1.205.084 1.84 1.237 1.84 1.237 1.07 1.832 2.807 1.303 3.492.996.108-.774.418-1.303.76-1.602-2.665-.3-5.466-1.332-5.466-5.93 0-1.311.468-2.382 1.237-3.222-.124-.302-.536-1.52.118-3.163 0 0 1.008-.322 3.3 1.23a11.516 11.516 0 0 1 3.002-.403 11.486 11.486 0 0 1 3.002.403c2.292-1.552 3.3-1.23 3.3-1.23.654 1.644.242 2.861.118 3.163.77.84 1.236 1.911 1.236 3.222 0 4.61-2.807 5.627-5.48 5.922.43.372.812 1.103.812 2.222v3.293c0 .321.218.694.825.576C20.565 21.796 24 17.3 24 12 24 5.373 18.627 0 12 0z"/>
+                   </svg>
+                   View source
+                </a>
+            </div>
+        `;
+        toc.appendChild(sourceLink);
+    }
+});
+</script>
+```
