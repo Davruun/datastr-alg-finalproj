@@ -1,0 +1,23 @@
+# Virtual environment
+wiki-bfs-workspace/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Pytest cache
+.pytest_cache/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+notebooks/.ipynb_checkpoints/
+
+# Notebook output images
+notebooks/*.png
+
+# macOS
+.DS_Store
+
+# Editor
+.idea/
+.vscode/

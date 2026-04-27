@@ -1,0 +1,14 @@
+# Web scraping
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=5.1.0
+
+# Graph visualisation
+networkx>=3.2.0
+matplotlib>=3.8.0
+scipy>=1.11.0
+graphviz>=0.20.0
+
+# Notebooks
+jupyter>=1.0.0
+ipykernel>=6.29.0
