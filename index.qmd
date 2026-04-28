@@ -1,6 +1,6 @@
 ---
-title: "5500"
-subtitle: "data str & alg"
+title: "Polymorphic Wikipedia Graph Explorer"
+subtitle: "Data Structures, Objects & Algorithms Project"
 author: 
   - name: "Troy Cheng, Stacy Che"
     email: yc1317@georgetown.edu
@@ -28,30 +28,644 @@ include-in-header:
   text: |
     <link rel="shortcut icon" href="assets/gu.ico" type="image/x-icon">           
 highlight-style: nord       
-engine: knitr
+jupyter: wiki-bfs-workspace
 ---
 
 
-At the beginning of this course, we found object-oriented programming (OOP) and data structures like Binary Search Trees (BSTs) quite difficult to understand. Coming from a data science background, we were used to working with tools like pandas, where most structures are already built for you. Writing our own classes, dealing with concepts like self, and linking nodes together felt unfamiliar and abstract. In particular, BSTs required thinking in terms of relationships between nodes instead of just rows and columns of data. However, as we practiced implementing BSTs and learned how to traverse them using Depth-First Search (DFS) and Breadth-First Search (BFS), we started to understand a key idea. These traversal methods are not limited to trees. They are general strategies for exploring structured systems.
+## Abstract
 
-This realization led us to think about how these concepts could be applied outside of textbook examples. In this project, we extend the idea of traversal from trees to a real-world system, which is Wikipedia. We model Wikipedia as a network of knowledge, where each page is treated as a node and each hyperlink between pages represents a connection. Unlike a tree, this structure is more complex because pages can link back to one another and form loops and dense connections. As a result, it is closer to a graph than a tree, and it requires careful tracking of which pages have already been visited in order to avoid repetition.
+This project builds a polymorphic Wikipedia graph explorer that extends traversal concepts from binary search trees to a real-world knowledge network. In the DSAN 5500 homework, we practiced using stacks and queues to change the traversal behavior of a binary search tree. This project takes that same idea and applies it to Wikipedia, where articles are treated as nodes and hyperlinks are treated as directed edges. The central design of the project is a flexible `WikiExplorer` class that depends on a general `Frontier` interface rather than a fixed traversal strategy. By passing in a `BFSFrontier` or a `DFSFrontier`, the same explorer can behave differently without rewriting its core logic. This demonstrates object-oriented polymorphism in a practical setting.
 
-The main goal of this project is to build a flexible Wikipedia exploration tool that can navigate this network using different strategies. When a page is visited, the system processes it by extracting the relevant links on that page and adding them to a list of pages to visit next. The key idea is that this list can be managed in different ways. If we treat it like a line, where pages are explored in the order they are discovered, the system behaves like Breadth-First Search and stays close to the original topic while expanding outward layer by layer. If we treat it like a stack, where the most recently discovered page is explored next, the system behaves like Depth-First Search and dives deeply into one chain of topics before backtracking. By designing the system so that these behaviors can be swapped without changing the overall structure, we apply the concept of polymorphism from OOP. This allows the same system to adapt to different exploration strategies.
+The project has three main features. First, it compares BFS and DFS exploration from the same starting Wikipedia page to show how different frontier structures lead to different discovery patterns. Second, it implements a shortest-path search inspired by the Wikipedia game, using BFS to find the minimum number of hyperlink clicks between two articles. Third, it builds a knowledge mindmap that measures the hyperlink distance between a central topic and several target topics. Together, these features show how foundational data structures and algorithms from class can be adapted to explore a large, interconnected information system. The project therefore bridges course concepts such as binary search trees, stacks, queues, graph traversal, and object-oriented design with a real-world application.
 
-One key functionality of this system is the ability to find the shortest path between two Wikipedia pages, similar to the well-known Wikipedia game. For example, starting from a page like “Data Science,” the system can determine the minimum number of clicks needed to reach a target page such as “Deep Learning.” By using a breadth-first exploration strategy, the system ensures that the first time it reaches the target, it has found the most efficient path. It also keeps track of how each page was reached, which allows it to reconstruct the full sequence of links at the end. This demonstrates how traversal algorithms can be used not only for visiting nodes but also for solving meaningful problems.
+## Research Question
 
-Beyond calculating shortest paths, we also see this project as a way of building a kind of “mind map” of knowledge. When we start from a familiar topic such as “Data Science,” we might expect to encounter closely related concepts such as “Machine Learning” or “Artificial Intelligence.” However, what makes this exploration interesting is not just confirming what we already know. It is also about discovering unexpected connections. A page about data science might link to a historical figure, a mathematical theory, or even something that initially seems unrelated. As the system explores more pages, it gradually builds a network of connections that reflects how knowledge is actually structured. The structure is interconnected, non-linear, and sometimes surprising. In this way, the project becomes not just a navigation tool but also a way to uncover new ideas and relationships that we might not have thought to search for directly. It mirrors how curiosity works in real life. We start from one idea and follow links that lead to entirely new domains, which can connect topics as distant as technology, history, or even something like dinosaurs.
+This project asks the following research question:
 
-From a technical perspective, this project also reinforces the importance of data structures in building efficient systems. A set is used to track visited pages, which ensures that each page is only processed once and prevents infinite loops. The list of pages to visit next functions as either a queue or a stack depending on the chosen strategy. Together, these components form a system that behaves like a graph traversal algorithm. Its performance scales based on the number of pages and links explored. This connects directly back to the time complexity concepts learned in class and shows how theoretical ideas translate into practical design decisions.
+**How can BFS, DFS, and object-oriented polymorphism be used to explore, compare, and map knowledge connections in Wikipedia as a graph-based information network?**
 
-Overall, this project represents a progression from learning abstract concepts to applying them in a meaningful and intuitive way. What began as an exercise in implementing BST traversal became a tool for exploring large-scale networks of knowledge. It also highlights how OOP can be used to build flexible systems that can adapt to different tasks without needing to be rewritten. For non-technical audiences, this project can be understood simply as creating a smarter way to explore Wikipedia. The system allows users to stay close to a topic, dive deeply into related ideas, or discover unexpected connections along the way.
-
-In conclusion, this project bridges the gap between foundational computer science concepts and real-world applications. By modeling Wikipedia as a network and applying traversal strategies learned from BSTs, we aim to build a system that is both technically meaningful and intuitively understandable. It reflects our learning journey throughout the course and demonstrates how concepts like BFS, DFS, and polymorphism can be used not only to solve problems but also to explore and better understand the structure of knowledge itself.
+To answer this question, we model Wikipedia as a directed graph, compare how BFS and DFS behave when exploring the same starting page, use BFS to solve shortest-path problems, and build a knowledge mindmap that visualizes conceptual distance through hyperlink paths.
 
 
+## Course Foundations: BST Traversal
+
+The foundation of this project comes directly from the Binary Search Tree (BST) traversal exercises in the DSAN 5500 homework. In the original assignment, we built a `BinarySearchTree` composed of linked `BSTNode` objects and used a `ThingContainer` abstraction to control traversal order. By choosing either a `Stack` or a `Queue`, the same traversal engine could behave like Depth-First Search (DFS) or Breadth-First Search (BFS).
+
+This was the first important idea that shaped our final project. We realized that traversal algorithms are not limited to trees. They are general strategies for exploring structured systems. What changes is not the algorithm itself, but the definition of what counts as a node and what counts as a child.
+
+In the BST homework, each node has at most two children: a left child and a right child. In the Wikipedia explorer, each Wikipedia page becomes a node, and the hyperlinks on that page become its children. Instead of traversing a binary tree, we are now traversing a graph of connected knowledge.
+
+The key observation is that the loop inside `NodeProcessor.iterate_over()` from the homework is structurally identical to the loop inside `WikiExplorer.explore()` in this project. The algorithm remains the same. Only the meaning of the node and its neighbors changes.
+
+| Course Homework (BST) | Final Project (Wikipedia Graph) |
+|---|---|
+| `BSTNode` | `WikiNode` |
+| `node.left`, `node.right` | hyperlinks on a Wikipedia page |
+| `ThingContainer` | `Frontier` |
+| `Stack` | `DFSFrontier` |
+| `Queue` | `BFSFrontier` |
+| `NodeProcessor` | `WikiExplorer` |
+
+This structural equivalence is the reason this project belongs naturally in DSAN 5500. We are not replacing course concepts with a new project. Instead, we are extending the exact same traversal logic from a controlled classroom example into a real-world information network.
+
+```{python}
+import sys
+sys.path.insert(0, ".")
+
+from src.bst import (
+    WikiPage,
+    BinarySearchTree,
+    Stack,
+    Queue,
+    IterAlgorithm,
+    NodeProcessor,
+)
+```
+
+```{python}
+pages = [
+    "Machine learning",
+    "Data science",
+    "Statistics",
+    "Artificial intelligence",
+    "Python (programming language)",
+    "Deep learning",
+    "Neural network",
+]
+
+bst = BinarySearchTree()
+
+for title in pages:
+    bst.add(WikiPage(title))
+
+print(f"Tree has {len(bst)} nodes")
+print("repr:", repr(bst))
+print("str:", str(bst))
+```
 
 
-```{=html}
+The example above builds a BST using Wikipedia page titles instead of ordinary inventory items. This helps connect the homework structure directly to the final project. The tree still behaves like a standard BST, but the content now reflects the domain of our Wikipedia explorer.
+
+```{python}
+print("=== DFS (Stack / LIFO) ===")
+dfs = NodeProcessor(IterAlgorithm.DEPTH_FIRST)
+dfs.iterate_over(bst)
+
+print("=== BFS (Queue / FIFO) ===")
+bfs = NodeProcessor(IterAlgorithm.BREADTH_FIRST)
+bfs.iterate_over(bst)
+
+```
+
+
+This demonstrates how simply changing the underlying container changes the traversal behavior. DFS uses a stack and explores deeply before backtracking, while BFS uses a queue and visits nodes layer by layer. This same principle becomes the core design of our Wikipedia explorer.
+
+
+## From BST to Wikipedia Graph Explorer
+
+After establishing the connection to BST traversal, the next step is to redefine the structure being explored. In the homework, the structure was a binary search tree. Each node had a fixed relationship to its children because it could only have a left child, a right child, or both. In this project, the structure is Wikipedia, which is much larger and less predictable. Each page can link to many other pages, and those pages can also link back to earlier pages. This makes Wikipedia closer to a graph than a tree.
+
+The important design shift is that we keep the traversal pattern but change the source of the children. In a BST, the children are already stored inside the node as `left` and `right`. In Wikipedia, the children are discovered dynamically by scraping the hyperlinks from each page. This means the explorer does not know all possible nodes in advance. It gradually builds the graph as it visits pages.
+
+Conceptually, the process works like this:
+
+```{text}
+Start with one Wikipedia page
+Take the next page from the frontier
+Fetch the links on that page
+Treat those links as neighboring nodes
+Add unvisited neighbors back into the frontier
+Record the page and its connections in the graph
+Repeat until the page or depth limit is reached
+```
+
+
+This is the same traversal logic used in the BST homework, but applied to a real information network. The difference is that Wikipedia introduces cycles and repeated links. For example, “Data science” may link to “Machine learning,” and “Machine learning” may link back to “Data science” or to another page that has already been discovered. Because of this, the project needs a visited set to avoid processing the same page repeatedly.
+
+
+```{python}
+from src import WikiScraper, WikiGraph, WikiNode
+
+graph = WikiGraph()
+
+graph.mark_visited("Data science")
+graph.add_edge("Data science", "Machine learning")
+graph.add_edge("Data science", "Statistics")
+graph.add_edge("Data science", "Artificial intelligence")
+
+print(graph)
+print("Neighbors of Data science:")
+for neighbor in graph.neighbors("Data science"):
+    print("-", neighbor)
+
+```
+
+The small example above shows the graph representation without needing to scrape live Wikipedia pages. Data science is marked as a visited node, and three outgoing edges are added to represent hyperlinks from that page to other concepts. Internally, the WikiGraph stores these relationships as an adjacency list. This is a natural structure for graph traversal because it allows the explorer to quickly retrieve the neighboring pages of any page it has already processed.
+
+The actual project uses WikiScraper to collect these neighbors from live Wikipedia pages. Given a page title, the scraper requests the HTML for that page, extracts internal Wikipedia article links, removes duplicates, and returns the page titles as a list. These returned links become the next possible nodes for the traversal.
+
+
+```{python}
+scraper = WikiScraper(delay=0.2)
+
+links = scraper.get_links("Data science")[:10]
+
+print("First 10 internal Wikipedia links found from 'Data science':")
+for link in links:
+    print("-", link)
+
+```
+
+
+This step is where the project moves from a toy data structure into a real-world network. The algorithm is still the same, but the data is no longer manually constructed. Instead, each page generates its own neighboring nodes through its hyperlinks.
+
+The table below summarizes the shift from the course example to the final project:
+
+| Design Element        | BST Traversal         | Wikipedia Graph Explorer           |
+| --------------------- | --------------------- | ---------------------------------- |
+| Starting point        | Root of the tree      | Starting Wikipedia page            |
+| Node                  | BST node              | Wikipedia article                  |
+| Children or neighbors | Left and right child  | Hyperlinks extracted from page     |
+| Traversal container   | Stack or Queue        | DFSFrontier or BFSFrontier         |
+| Repeated visits       | Usually not an issue  | Must be handled with a visited set |
+| Output                | Printed node contents | Explored graph and paths           |
+
+This transition is the conceptual center of the project. We are not simply using Wikipedia as a dataset. We are using Wikipedia to show how a traversal algorithm can be generalized from a tree to a graph, and from a classroom example to a real exploratory tool.
+
+
+## Core OOP Design: Frontier Polymorphism
+
+One of the most important design decisions in this project is the use of object-oriented polymorphism. Instead of writing separate programs for Breadth-First Search (BFS) and Depth-First Search (DFS), we designed a single exploration system that can switch traversal behavior by changing only one object. This allows the same `WikiExplorer` class to behave differently without rewriting its internal logic.
+
+In the original BST homework, traversal order was controlled by a `ThingContainer`. If the container was a `Stack`, the traversal behaved like Depth-First Search because the most recently added node was explored first. If the container was a `Queue`, the traversal behaved like Breadth-First Search because the earliest discovered node was explored first. The algorithm itself did not change. Only the behavior of the container changed.
+
+This same idea becomes the center of the Wikipedia explorer. Instead of directly using `Stack` and `Queue`, we define an abstract class called `Frontier`. The `Frontier` class provides a general interface with three basic operations:
+
+- `add()` → place a new page into the frontier
+- `pop()` → remove the next page to explore
+- `is_empty()` → check whether exploration should stop
+
+The `WikiExplorer` only depends on this interface. It does not need to know whether the frontier is implemented using a queue, a stack, or something else. This separation is what makes the design flexible.
+
+Two concrete subclasses inherit from `Frontier`:
+
+1. `BFSFrontier`
+2. `DFSFrontier`
+
+`BFSFrontier` wraps the `Queue` class from the course homework. It uses first-in, first-out (FIFO) behavior, which means pages are explored layer by layer. This keeps the traversal close to the starting topic and is especially useful for shortest-path problems.
+
+`DFSFrontier` wraps the `Stack` class from the homework. It uses last-in, first-out (LIFO) behavior, which means the most recently discovered page is explored next. This causes the system to dive deeply into one chain of pages before returning, which is useful for exploratory discovery.
+
+The important point is that both classes expose the same methods. From the perspective of `WikiExplorer`, they are interchangeable.
+
+```{python}
+from src.frontier import BFSFrontier, DFSFrontier
+
+bfs_frontier = BFSFrontier()
+dfs_frontier = DFSFrontier()
+
+print(f"BFSFrontier wraps: {type(bfs_frontier._container).__name__}")
+print(f"DFSFrontier wraps: {type(dfs_frontier._container).__name__}")
+
+```
+
+The output confirms that BFSFrontier internally uses a Queue, while DFSFrontier uses a Stack. However, the explorer does not directly interact with these internal structures. It only calls the shared interface methods.
+
+This is the practical meaning of polymorphism in this project. The same code:
+
+```{text}
+frontier.add(page)
+next_page = frontier.pop()
+
+```
+
+can behave as BFS or DFS depending on which frontier object is passed into the system.
+
+This means we are not maintaining two different exploration programs. We are maintaining one general exploration engine with interchangeable traversal strategies. This is cleaner, easier to test, and easier to extend. For example, if we wanted to add a Priority Frontier in the future for heuristic search, we could do so without changing the internal logic of WikiExplorer.
+
+The code below demonstrates that the same explorer can be initialized with different frontier objects while keeping the rest of the system unchanged.
+
+```{python}
+
+from src import WikiExplorer, WikiScraper
+
+scraper = WikiScraper(delay=0.2)
+
+bfs_explorer = WikiExplorer(
+    frontier=BFSFrontier(),
+    scraper=scraper,
+    max_pages=10,
+    max_depth=1,
+    verbose=False
+)
+
+dfs_explorer = WikiExplorer(
+    frontier=DFSFrontier(),
+    scraper=scraper,
+    max_pages=10,
+    max_depth=1,
+    verbose=False
+)
+
+print("BFS explorer uses:", type(bfs_explorer.frontier).__name__)
+print("DFS explorer uses:", type(dfs_explorer.frontier).__name__)
+
+```
+
+Even though both explorers use the same class, they will produce different exploration patterns because the frontier object changes the order in which pages are processed.
+
+This object-oriented structure is one of the strongest parts of the project because it connects directly to the course theme of data structures and object-oriented programming. The traversal strategy is no longer hardcoded into the algorithm. Instead, it becomes a replaceable component. This makes the system not only technically correct, but also well-designed from a software engineering perspective.
+
+
+## Modeling Wikipedia as a Graph
+
+After establishing the traversal logic and the object-oriented structure, the next step is to define what exactly is being explored. In this project, Wikipedia is modeled as a directed graph. Each Wikipedia article is treated as a node, and each hyperlink from one article to another is treated as a directed edge.
+
+For example, if the page “Data science” contains a hyperlink to “Machine learning,” the system records a directed connection from “Data science” to “Machine learning.” This creates a network of knowledge where concepts are connected through references and topic relationships.
+
+This structure is fundamentally different from a binary search tree. In a BST, every node has a fixed maximum of two children, and the relationships are already known when the tree is built. In Wikipedia, a page may contain dozens or even hundreds of links, and these neighboring pages are only discovered when the page is visited. This makes the structure dynamic and much more complex.
+
+Another major difference is the existence of cycles. In a BST, traversal usually does not risk infinite loops because the structure is acyclic. In Wikipedia, cycles happen naturally. For example, “Data science” may link to “Machine learning,” and “Machine learning” may link back to “Data science.” Without additional control, the explorer could revisit the same pages forever.
+
+To solve this problem, the project uses a `visited` set. Every time a page is processed, its title is added to the set. Before exploring a new page, the system first checks whether it has already been visited. This prevents repeated work and guarantees that traversal eventually stops.
+
+This design also connects back to a concept from the BST homework. In the BST, searching for an item could be done in approximately O(log n) time when the tree is balanced. In the Wikipedia explorer, we use a Python `set` for visited tracking, which provides average O(1) lookup through hashing. This makes repeated membership checks much more efficient for large graphs.
+
+The graph itself is stored using an adjacency list. This means that for each page, the system stores a list of neighboring pages that can be reached directly from it. This structure is efficient for traversal because the explorer only needs to retrieve the neighbors of the current page instead of storing a large adjacency matrix for the entire network.
+
+The `WikiGraph` class maintains three main components: the `adjacency` dictionary records directed edges between pages, the `visited` set stores pages that have already been explored, and the `parents` dictionary records how each page was reached during traversal. The `parents` dictionary is especially important for shortest-path reconstruction. When the explorer reaches a target page, it can trace backwards through the parent chain to rebuild the full path from the starting page.
+
+```{python}
+from src import WikiGraph
+
+graph = WikiGraph()
+
+graph.mark_visited("Data science")
+graph.add_edge("Data science", "Machine learning")
+graph.add_edge("Data science", "Statistics")
+graph.add_edge("Data science", "Artificial intelligence")
+
+print(graph)
+print("Neighbors of Data science:")
+
+for neighbor in graph.neighbors("Data science"):
+    print("-", neighbor)
+```
+
+The small example above demonstrates the internal graph representation without needing to connect to live Wikipedia pages. The page “Data science” becomes a source node, and three outgoing edges are recorded as neighboring concepts.
+
+However, the full project uses live Wikipedia data rather than manually created examples. This is handled by the WikiScraper class.
+
+The WikiScraper takes a Wikipedia page title, downloads the HTML of that page, identifies the main article content, extracts all internal article links, removes duplicates, and returns the results as a list of neighboring page titles.
+
+This means that the children of a node are no longer fixed attributes like left and right. Instead, they are generated dynamically through live hyperlinks.
+
+```{python}
+from src import WikiScraper
+
+scraper = WikiScraper(delay=0.2)
+
+links = scraper.get_links("Data science")[:10]
+
+print("First 10 internal Wikipedia links found from 'Data science':")
+
+for link in links:
+    print("-", link)
+```
+
+This is the point where the project moves from a classroom data structure into a real-world exploration system. The traversal algorithm itself remains the same, but the source of the graph is no longer manually constructed. Each page generates its own neighbors, allowing the explorer to gradually build a real knowledge network.
+
+The table below summarizes this transition:
+| Design Element      | BST Traversal         | Wikipedia Graph Explorer               |
+| ------------------- | --------------------- | -------------------------------------- |
+| Starting point      | Root of the tree      | Starting Wikipedia page                |
+| Node                | BST node              | Wikipedia article                      |
+| Children            | Left and right child  | Hyperlinks extracted from page         |
+| Traversal structure | Tree                  | Directed graph                         |
+| Traversal container | Stack or Queue        | DFSFrontier or BFSFrontier             |
+| Repeated visits     | Usually not an issue  | Must be controlled with a visited set  |
+| Output              | Printed node contents | Explored graph and reconstructed paths |
+
+
+This modeling step is the conceptual center of the project. We are not simply using Wikipedia as a dataset. We are using it to show how traversal algorithms can be generalized from trees to graphs and from classroom exercises to practical systems for exploring connected knowledge.
+
+
+## Feature 1: BFS vs DFS Exploration
+
+The first major experiment of this project compares Breadth-First Search (BFS) and Depth-First Search (DFS) using the same starting Wikipedia page: `"Data science"`.
+
+The purpose of this comparison is to demonstrate that changing only the frontier structure can significantly change what the explorer discovers. The traversal algorithm itself remains the same. The only difference is whether the system uses a queue-based frontier (`BFSFrontier`) or a stack-based frontier (`DFSFrontier`).
+
+This experiment is the clearest demonstration of polymorphism in the project. The same `WikiExplorer` class runs both searches, but because the frontier object changes, the behavior of the traversal changes as well.
+
+BFS uses a queue and follows first-in, first-out (FIFO) behavior. This means it explores pages layer by layer. Starting from `"Data science"`, BFS first visits all directly linked pages before moving deeper into second-level links. As a result, BFS tends to remain close to the original topic and produces a wide but shallow exploration.
+
+DFS uses a stack and follows last-in, first-out (LIFO) behavior. This means it always explores the most recently discovered page next. Starting from the same page, DFS quickly dives into one branch of links and may move far away from the original topic before returning. This produces a narrow but deep exploration.
+
+To make the comparison fair, both searches use the same configuration:
+
+- Starting page: `"Data science"`
+- Maximum pages visited: `30`
+- Maximum depth: `2`
+
+This ensures that any difference in the discovered graph comes from the traversal strategy itself rather than different stopping conditions.
+
+```{python}
+from src import BFSFrontier, DFSFrontier, WikiScraper, WikiExplorer
+
+START_PAGE = "Data science"
+MAX_PAGES = 30
+MAX_DEPTH = 2
+
+scraper = WikiScraper(delay=0.2)
+
+bfs_explorer = WikiExplorer(
+    frontier=BFSFrontier(),
+    scraper=scraper,
+    max_pages=MAX_PAGES,
+    max_depth=MAX_DEPTH,
+    verbose=False
+)
+
+bfs_graph = bfs_explorer.explore(START_PAGE)
+
+dfs_explorer = WikiExplorer(
+    frontier=DFSFrontier(),
+    scraper=scraper,
+    max_pages=MAX_PAGES,
+    max_depth=MAX_DEPTH,
+    verbose=False
+)
+
+dfs_graph = dfs_explorer.explore(START_PAGE)
+
+```
+
+After both explorations finish, we compare the visited pages.
+
+```{python}
+bfs_only = bfs_graph.visited - dfs_graph.visited
+dfs_only = dfs_graph.visited - bfs_graph.visited
+shared = bfs_graph.visited & dfs_graph.visited
+
+print(f"BFS result: {bfs_graph}")
+print(f"DFS result: {dfs_graph}")
+print(f"Pages visited by both: {len(shared)}")
+print(f"Pages visited by BFS only: {len(bfs_only)}")
+print(f"Pages visited by DFS only: {len(dfs_only)}")
+
+```
+
+We also inspect some example pages that appear only in one traversal.
+
+```{python}
+print("Example pages visited only by BFS:")
+for page in sorted(bfs_only)[:10]:
+    print("-", page)
+
+print("\nExample pages visited only by DFS:")
+for page in sorted(dfs_only)[:10]:
+    print("-", page)
+```
+
+In most cases, the BFS-only pages remain strongly related to data science, such as statistics, machine learning, or data analysis topics. This is because BFS prioritizes pages that are close to the starting article.
+
+The DFS-only pages often look more surprising. Because DFS follows one branch deeply before returning, it may quickly reach pages in history, philosophy, politics, or other unrelated areas. These pages are still connected through hyperlinks, but they are conceptually much farther away from the original topic.
+
+This shows an important result: BFS and DFS do not simply visit the same graph in a different order. Under page limits and depth limits, they can actually discover different parts of the graph.
+
+This is why the frontier abstraction matters. The explorer code does not change, but the knowledge map produced by the system changes significantly depending on which frontier object is used.
+
+This section demonstrates that data structures are not just implementation details. The choice between a stack and a queue changes the behavior of the entire system and changes what knowledge becomes visible first.
+
+
+## Feature 2: Shortest Path Between Wikipedia Pages
+
+The second feature turns the explorer into a problem-solving tool. Instead of only asking what pages can be discovered from a starting point, this feature asks whether the system can find the shortest path between two Wikipedia articles.
+
+This is similar to the well-known Wikipedia game, where a player starts from one article and tries to reach another article by clicking hyperlinks. In our project, the computer performs this search automatically. Given a start page and a target page, the system attempts to find the minimum number of hyperlink hops needed to reach the target.
+
+This feature uses Breadth-First Search rather than Depth-First Search. The reason is that BFS explores nodes in order of increasing distance from the start page. It first checks all pages that are one click away, then all pages that are two clicks away, then three clicks away, and so on. Therefore, the first time BFS reaches the target page, that path is guaranteed to be the shortest path within the explored search space.
+
+DFS does not provide the same guarantee. A depth-first search may eventually find a path to the target, but it could find a longer path before discovering a shorter one. For shortest-path discovery in an unweighted graph, BFS is the appropriate traversal strategy.
+
+In this example, we search for the shortest path from `"Data science"` to `"Deep learning"`.
+
+```{python}
+from src import BFSFrontier, WikiScraper, WikiExplorer
+
+START = "Data science"
+TARGET = "Deep learning"
+
+path_explorer = WikiExplorer(
+    frontier=BFSFrontier(),
+    scraper=WikiScraper(delay=0.2),
+    verbose=False
+)
+
+path = path_explorer.shortest_path(
+    start=START,
+    target=TARGET,
+    max_pages=200
+)
+
+if path:
+    print(f"Shortest path ({len(path) - 1} hops):")
+    for i, page in enumerate(path):
+        if i == 0:
+            label = "START"
+        elif i == len(path) - 1:
+            label = "TARGET"
+        else:
+            label = f"STEP {i}"
+        print(f"{label}: {page}")
+else:
+    print("No path found within the page limit.")
+```
+
+The output shows the sequence of Wikipedia pages that connects the starting page to the target page. The number of hops is calculated as the number of edges in the path, which is one fewer than the number of pages in the path.
+
+To test the feature more broadly, we can try several different start and target pairs. Some pairs are closely related and may be found quickly, while others require more intermediate concepts or may not be found within the page limit.
+
+```{python}
+pairs = [
+    ("Data science", "Dinosaur"),
+    ("Machine learning", "Ancient Rome"),
+    ("Python (programming language)", "Shakespeare"),
+]
+
+scraper = WikiScraper(delay=0.2)
+
+for start, target in pairs:
+    explorer = WikiExplorer(
+        frontier=BFSFrontier(),
+        scraper=scraper,
+        verbose=False
+    )
+
+    pair_path = explorer.shortest_path(
+        start=start,
+        target=target,
+        max_pages=150
+    )
+
+    if pair_path:
+        print(f"{start!r} → {target!r}: {len(pair_path) - 1} hops")
+        print("Path:", " → ".join(pair_path))
+    else:
+        print(f"{start!r} → {target!r}: NOT FOUND within page limit")
+    print()
+```
+
+This experiment highlights the difference between graph exploration and graph search. In the previous section, BFS and DFS were used to explore and compare what each traversal strategy discovers. Here, BFS is used for a more specific task: finding the minimum-hop connection between two nodes.
+
+The shortest-path feature also shows why the `parents` dictionary in `WikiGraph` and the `parent_map` inside `shortest_path()` matter. During BFS, each newly discovered page records the page from which it was reached. Once the target is found, the system can walk backward through these parent relationships and reconstruct the full path from the start page to the target page.
+
+Conceptually, the process works like this:
+
+```{text}
+Start page
+↓
+Explore all pages one click away
+↓
+Explore all pages two clicks away
+↓
+Continue outward layer by layer
+↓
+Stop when the target page is first found
+↓
+Reconstruct the path using parent links
+```
+
+This feature gives the project a clear algorithmic result. The system is not only browsing Wikipedia. It is solving a graph problem. By modeling articles as nodes and hyperlinks as unweighted edges, the shortest-path task becomes a direct application of BFS.
+
+
+## Feature 3: Knowledge Mindmap
+
+The final major feature of this project extends the shortest-path idea into a broader knowledge mapping tool. Instead of finding the shortest path between one starting page and one target page, this feature asks a larger question:
+
+**How far is everything from what we care about?**
+
+This feature is implemented through the `WikiMindmap` class. Starting from one central Wikipedia article, the system searches for multiple target pages and measures how many hyperlink hops are needed to reach each one. The result is a knowledge distance map that shows which concepts are closely connected and which are conceptually far away.
+
+This transforms BFS from a shortest-path algorithm into a tool for measuring conceptual distance inside Wikipedia’s knowledge network.
+
+In this example, we use `"Data science"` as the center topic and compare its distance to several related and unrelated concepts:
+
+- Machine learning  
+- Artificial intelligence  
+- Statistics  
+- Ancient Rome  
+- Dinosaur  
+- Philosophy  
+- William Shakespeare
+
+Intuitively, we expect topics like Machine learning and Statistics to be closer to Data science, while topics like Ancient Rome or Shakespeare should require more intermediate pages. The goal of this feature is to test that intuition using actual hyperlink paths rather than assumptions.
+
+For each target page, the system runs BFS starting from the center page, stops when the target page is found, records the shortest path and total hop count, and then repeats the same process for all remaining targets. The final distances are then compared across all concepts.
+
+```{python}
+from src import WikiMindmap, WikiScraper
+
+CENTER = "Data science"
+
+TARGETS = [
+    "Machine learning",
+    "Artificial intelligence",
+    "Statistics",
+    "Ancient Rome",
+    "Dinosaur",
+    "Philosophy",
+    "William Shakespeare",
+]
+
+mindmap = WikiMindmap(
+    center=CENTER,
+    scraper=WikiScraper(delay=0.2),
+    max_pages=200,
+    verbose=False
+)
+
+mindmap.build(TARGETS)
+mindmap.summary()
+```
+
+The summary table reports the shortest-path result for each target. Topics with fewer hops are conceptually closer inside Wikipedia’s link structure. Topics with more hops require passing through more intermediate concepts before they can be reached.
+
+We can also identify the closest and farthest targets automatically.
+
+```{python}
+closest = mindmap.closest()
+farthest = mindmap.farthest()
+
+if closest:
+    print(f"Closest target: {closest.target} ({closest.hops} hops)")
+    print("Path:", " → ".join(closest.path))
+
+if farthest:
+    print(f"\nFarthest target: {farthest.target} ({farthest.hops} hops)")
+    print("Path:", " → ".join(farthest.path))
+```
+
+
+This helps transform the output from a simple path list into an interpretable comparison of conceptual distance.
+
+To make the result more intuitive, the project visualizes the knowledge map as a radial graph.
+
+```{python}
+mindmap.visualize(figsize=(15, 11), save_path="mindmap.png")
+```
+
+In the visualization:
+
+- the red node represents the center topic
+- the green nodes represent the target pages
+- the blue nodes represent intermediate pages along shortest paths
+- arrows represent the direction of hyperlink traversal
+
+Targets with fewer hops appear conceptually closer because fewer intermediate ideas are needed to connect them. Targets with many hops are farther away in Wikipedia’s structure and usually require moving through more unrelated domains.
+
+This feature demonstrates that graph traversal can be used not only for navigation, but also for interpretation. Instead of asking only how to reach a page, we can ask how strongly two concepts are connected inside a knowledge system.
+
+Compared with the shortest-path feature in the previous section, the mindmap provides a more analytical perspective. It allows the explorer to compare multiple concepts at once and turns BFS into a tool for understanding the structure of knowledge itself.
+
+This is one of the strongest parts of the project because it moves beyond implementation and into interpretation. The output is not only technically correct, but also meaningful for understanding how information is organized across Wikipedia.
+
+
+## Discussion
+
+This project demonstrates that traversal algorithms are not limited to textbook examples such as binary search trees. The same logic can be extended to a much larger and less predictable structure like Wikipedia. The most important insight is that the traversal pattern itself remains stable, while the meaning of nodes, children, and relationships changes depending on the system being explored.
+
+In the original BST homework, traversal meant moving through a tree with fixed left and right children. In this project, traversal means moving through a graph where each page dynamically generates its own neighboring nodes through hyperlinks. This shift from a static tree to a dynamic graph makes the system more realistic and also introduces new challenges such as cycles, repeated visits, and the need for path reconstruction.
+
+One important finding of the project is that data structures are not only implementation details. The choice between a stack and a queue changes the behavior of the entire exploration system. BFS and DFS do not simply visit the same graph in a different order. Under page limits and depth limits, they can discover meaningfully different parts of the knowledge network. BFS tends to remain close to the starting concept and preserves local relevance, while DFS may quickly move into unexpected or conceptually distant areas. This shows that traversal strategy directly affects what information becomes visible first.
+
+Another important result is that object-oriented design improves both clarity and extensibility. By introducing the abstract `Frontier` interface, the project separates traversal strategy from traversal execution. `WikiExplorer` does not need separate logic for BFS and DFS. It only depends on a shared set of operations such as `add()`, `pop()`, and `is_empty()`. This makes the system easier to maintain and easier to extend. A new traversal strategy such as heuristic search or priority-based search could be added later without rewriting the explorer itself.
+
+The shortest-path feature further shows that graph traversal can move beyond exploration and become a problem-solving tool. BFS is not only useful for visiting pages layer by layer, but also for guaranteeing minimum-hop paths between concepts. This transforms the system from a crawler into a graph search engine.
+
+The knowledge mindmap extends this idea even further. Instead of asking how to reach one target page, it asks how multiple concepts are positioned relative to a central topic. This turns graph traversal into a method for interpretation. The output is no longer only a path, but a way of understanding conceptual distance inside a knowledge network.
+
+There are also limitations in the current implementation. Wikipedia is extremely large, and the project uses page limits and depth limits to keep exploration computationally reasonable. This means that some paths may not be discovered even if they exist. The current scraper also depends on live HTML structure, which may change over time and affect reliability. In addition, all hyperlinks are treated equally, even though some links may be much more meaningful than others.
+
+Future improvements could include weighted edges, semantic ranking of links, or heuristic search strategies such as A*. This would allow the system to move beyond structural shortest paths and toward more meaningful conceptual paths. Another possible extension would be integrating topic clustering or visualization dashboards for larger-scale knowledge analysis.
+
+Overall, the project shows that foundational concepts from data structures and algorithms can be meaningfully applied to a real information system. Instead of treating stacks, queues, and traversal algorithms as isolated classroom exercises, the project demonstrates how they become powerful tools for exploring and understanding connected knowledge.
+
+## Conclusion
+
+This project builds a polymorphic Wikipedia graph explorer by extending traversal concepts from binary search trees to a real-world graph structure. Starting from the DSAN 5500 BST homework, we preserved the same traversal logic while redefining the meaning of nodes and children. In place of tree nodes and left-right child relationships, Wikipedia articles became nodes and hyperlinks became directed edges.
+
+The project demonstrates how Breadth-First Search and Depth-First Search produce different exploration behaviors even when using the same explorer engine. By introducing the `Frontier` abstraction, the system uses object-oriented polymorphism to switch traversal strategies without changing the internal logic of `WikiExplorer`. This makes the design both technically correct and structurally flexible.
+
+Three major features were implemented. First, BFS and DFS exploration showed how traversal strategy changes what parts of the graph are discovered first. Second, the shortest-path feature used BFS to solve the Wikipedia game by finding the minimum number of clicks between two articles. Third, the knowledge mindmap extended shortest-path search into a broader conceptual distance map, allowing multiple topics to be compared relative to one central idea.
+
+These features show that graph traversal is not only a programming exercise but also a practical method for analyzing how knowledge is connected. The project bridges classroom foundations in data structures, graph algorithms, and object-oriented programming with a real exploratory system built on live Wikipedia data.
+
+Ultimately, this project demonstrates that the value of algorithms lies not only in correctness or efficiency, but also in how they help us understand complex systems. By turning traversal into exploration, search, and interpretation, the project shows how fundamental computer science concepts can be applied to meaningful real-world problems.
+
+
+```{html}
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const toc = document.getElementById("TOC");
