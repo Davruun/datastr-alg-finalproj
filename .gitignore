@@ -14,10 +14,17 @@ notebooks/.ipynb_checkpoints/
 
 # Notebook output images
 notebooks/*.png
+*.png
 
 # macOS
 .DS_Store
+.Rhistory
+# R
+.Rproj.user
+.RData
+.Rhistory
 
 # Editor
 .idea/
 .vscode/
+

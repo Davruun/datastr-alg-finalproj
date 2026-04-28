@@ -1,8 +1,7 @@
 """
 run_example.py
 --------------
-Side-by-side demo of BFS exploration vs DFS exploration,
-both starting from "Data science".
+Fast & Easy demo of BFS exploration vs DFS exploration
 
 Run from the project root with:
     python3 run_example.py
@@ -23,8 +22,8 @@ DFS  — immediately dives into the FIRST link it finds and follows
 from src import BFSFrontier, DFSFrontier, WikiScraper, WikiExplorer
 
 SCRAPER   = WikiScraper(delay=0.3)
-START     = "Data science"
-MAX_PAGES = 20   # keep low so both runs finish quickly
+START     = "Cat"
+MAX_PAGES = 20   
 
 # ── BFS ──────────────────────────────────────────────────────────────────────
 print("=" * 60)
@@ -71,5 +70,5 @@ print(f"Pages visited by BOTH   : {len(shared)}")
 print(f"Pages visited by BFS only: {len(bfs_only)}  → {sorted(bfs_only)[:5]} ...")
 print(f"Pages visited by DFS only: {len(dfs_only)}  → {sorted(dfs_only)[:5]} ...")
 print()
-print("Notice: BFS stays close to 'Data science' (mostly data topics).")
-print("        DFS wanders far — its unique pages will look unrelated.")
+print(f"Notice: BFS stays close to '{START}' (mostly nearby topics).")
+print( "        DFS wanders far — its unique pages will look unrelated.")

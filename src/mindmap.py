@@ -1,7 +1,7 @@
 """
 mindmap.py
 ----------
-WikiMindmap: builds a knowledge distance map centred on one Wikipedia article.
+WikiMindmap: builds a knowledge distance map centered on one Wikipedia article.
 
 Given a centre page A and a list of target pages [B, C, D, …], it:
   1. Runs BFS shortest-path from A to each target

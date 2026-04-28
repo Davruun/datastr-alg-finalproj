@@ -2,18 +2,15 @@
 explorer.py
 -----------
 WikiExplorer: the  engine that wires together the Frontier, Scraper, and Graph.
-The same class drives both BFS and DFS simply by receiving a different subclass.
+The same class drives both BFS and DF]= by receiving a different subclass.
 
-Key public methods
-------------------
 explore(start, max_pages, max_depth)
     Traverse the Wikipedia graph from `start`, stopping at whichever
     limit (page count OR depth) is hit first.
 
 shortest_path(start, target, max_pages)
     BFS-based shortest-path search from `start` to `target`.
-    Always uses BFS regardless of the configured frontier (BFS is the
-    only algorithm that guarantees the shortest path).
+    Always uses BFS regardless of the configured frontier
     Returns the path as an ordered list of page titles, or None.
 """
 
@@ -167,6 +164,10 @@ class WikiExplorer:
             Ordered list of page titles from start to target (inclusive),
             or None if no path was found within the page limit.
         """
+        # Normalise to Wikipedia title casing (first letter capitalised)
+        start  = start[0].upper()  + start[1:]  if start  else start
+        target = target[0].upper() + target[1:] if target else target
+
         if start == target:
             return [start]
 
@@ -190,6 +191,8 @@ class WikiExplorer:
                 if link not in parent_map:
                     parent_map[link] = current
                     if link == target:
+                        if self.verbose:
+                            print(f"[BFS shortest |  FOUND] {target}  ← target reached via '{current}'")
                         return self._build_path(parent_map, start, target)
                     queue.append(link)
 

@@ -19,7 +19,7 @@ except ImportError:
 
 class WikiPage:
     """
-    Replaces InventoryItem from the homework 3 —
+    Replaces InventoryItem from the homework 3 
     Same comparison logic (<, >, ==) as BinarySearchTree.
     Just looping over page titles instead of inventory records.
     Alphabetical ordering: "Aardvark" < "Zebra".
