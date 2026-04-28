@@ -59,12 +59,12 @@ The key observation is that the loop inside `NodeProcessor.iterate_over()` from 
 
 | Course Homework (BST) | Final Project (Wikipedia Graph) |
 |---|---|
-| `BSTNode` | `WikiNode` |
-| `node.left`, `node.right` | hyperlinks on a Wikipedia page |
-| `ThingContainer` | `Frontier` |
-| `Stack` | `DFSFrontier` |
-| `Queue` | `BFSFrontier` |
-| `NodeProcessor` | `WikiExplorer` |
+| BSTNode | WikiNode |
+| node.left, node.right | hyperlinks on a Wikipedia page |
+| ThingContainer | Frontier |
+| Stack | DFSFrontier |
+| Queue | BFSFrontier |
+| NodeProcessor | WikiExplorer |
 
 This structural equivalence is the reason this project belongs naturally in DSAN 5500. We are not replacing course concepts with a new project. Instead, we are extending the exact same traversal logic from a controlled classroom example into a real-world information network.
 
@@ -336,6 +336,7 @@ for link in links:
 This is the point where the project moves from a classroom data structure into a real-world exploration system. The traversal algorithm itself remains the same, but the source of the graph is no longer manually constructed. Each page generates its own neighbors, allowing the explorer to gradually build a real knowledge network.
 
 The table below summarizes this transition:
+
 | Design Element      | BST Traversal         | Wikipedia Graph Explorer               |
 | ------------------- | --------------------- | -------------------------------------- |
 | Starting point      | Root of the tree      | Starting Wikipedia page                |
@@ -665,7 +666,7 @@ These features show that graph traversal is not only a programming exercise but 
 Ultimately, this project demonstrates that the value of algorithms lies not only in correctness or efficiency, but also in how they help us understand complex systems. By turning traversal into exploration, search, and interpretation, the project shows how fundamental computer science concepts can be applied to meaningful real-world problems.
 
 
-```{html}
+```{=html}
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const toc = document.getElementById("TOC");
