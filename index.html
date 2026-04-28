@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Troy Cheng, Stacy Che">
-<meta name="dcterms.date" content="2025-04-28">
+<meta name="dcterms.date" content="2026-04-30">
 
 <title>Polymorphic Wikipedia Graph Explorer</title>
 <style>
@@ -2249,7 +2249,7 @@ background: #0a0e1a;
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">April 28, 2025</p>
+        <p class="date">April 30, 2026</p>
       </div>
     </div>
     
@@ -2341,7 +2341,7 @@ background: #0a0e1a;
 </tbody>
 </table>
 <p>This structural equivalence is the reason this project belongs naturally in DSAN 5500. We are not replacing course concepts with a new project. Instead, we are extending the exact same traversal logic from a controlled classroom example into a real-world information network.</p>
-<div id="5ea17678" class="cell" data-execution_count="1">
+<div id="2157375a" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>sys.path.insert(<span class="dv">0</span>, <span class="st">&quot;.&quot;</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -2354,7 +2354,7 @@ background: #0a0e1a;
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    NodeProcessor,</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="3fb5db17" class="cell" data-execution_count="2">
+<div id="5d6d25c5" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>pages <span class="op">=</span> [</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Machine learning&quot;</span>,</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Data science&quot;</span>,</span>
@@ -2380,7 +2380,7 @@ str: BinarySearchTree[Data science,Machine learning,Statistics]</code></pre>
 </div>
 </div>
 <p>The example above builds a BST using Wikipedia page titles instead of ordinary inventory items. This helps connect the homework structure directly to the final project. The tree still behaves like a standard BST, but the content now reflects the domain of our Wikipedia explorer.</p>
-<div id="e7edf2b5" class="cell" data-execution_count="3">
+<div id="08bf3724" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;=== DFS (Stack / LIFO) ===&quot;</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>dfs <span class="op">=</span> NodeProcessor(IterAlgorithm.DEPTH_FIRST)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>dfs.iterate_over(bst)</span>
@@ -2422,7 +2422,7 @@ Add unvisited neighbors back into the frontier
 Record the page and its connections in the graph
 Repeat until the page or depth limit is reached</code></pre>
 <p>This is the same traversal logic used in the BST homework, but applied to a real information network. The difference is that Wikipedia introduces cycles and repeated links. For example, “Data science” may link to “Machine learning,” and “Machine learning” may link back to “Data science” or to another page that has already been discovered. Because of this, the project needs a visited set to avoid processing the same page repeatedly.</p>
-<div id="ba524161" class="cell" data-execution_count="4">
+<div id="58715852" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src <span class="im">import</span> WikiScraper, WikiGraph, WikiNode</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>graph <span class="op">=</span> WikiGraph()</span>
@@ -2446,7 +2446,7 @@ Neighbors of Data science:
 </div>
 <p>The small example above shows the graph representation without needing to scrape live Wikipedia pages. Data science is marked as a visited node, and three outgoing edges are added to represent hyperlinks from that page to other concepts. Internally, the WikiGraph stores these relationships as an adjacency list. This is a natural structure for graph traversal because it allows the explorer to quickly retrieve the neighboring pages of any page it has already processed.</p>
 <p>The actual project uses WikiScraper to collect these neighbors from live Wikipedia pages. Given a page title, the scraper requests the HTML for that page, extracts internal Wikipedia article links, removes duplicates, and returns the page titles as a list. These returned links become the next possible nodes for the traversal.</p>
-<div id="76516b8d" class="cell" data-execution_count="5">
+<div id="ce288dad" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>scraper <span class="op">=</span> WikiScraper(delay<span class="op">=</span><span class="fl">0.2</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>links <span class="op">=</span> scraper.get_links(<span class="st">&quot;Data science&quot;</span>)[:<span class="dv">10</span>]</span>
@@ -2537,7 +2537,7 @@ Neighbors of Data science:
 <p><code>BFSFrontier</code> wraps the <code>Queue</code> class from the course homework. It uses first-in, first-out (FIFO) behavior, which means pages are explored layer by layer. This keeps the traversal close to the starting topic and is especially useful for shortest-path problems.</p>
 <p><code>DFSFrontier</code> wraps the <code>Stack</code> class from the homework. It uses last-in, first-out (LIFO) behavior, which means the most recently discovered page is explored next. This causes the system to dive deeply into one chain of pages before returning, which is useful for exploratory discovery.</p>
 <p>The important point is that both classes expose the same methods. From the perspective of <code>WikiExplorer</code>, they are interchangeable.</p>
-<div id="c23116f7" class="cell" data-execution_count="6">
+<div id="c68a3bb2" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src.frontier <span class="im">import</span> BFSFrontier, DFSFrontier</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>bfs_frontier <span class="op">=</span> BFSFrontier()</span>
@@ -2558,7 +2558,7 @@ next_page = frontier.pop()
 <p>can behave as BFS or DFS depending on which frontier object is passed into the system.</p>
 <p>This means we are not maintaining two different exploration programs. We are maintaining one general exploration engine with interchangeable traversal strategies. This is cleaner, easier to test, and easier to extend. For example, if we wanted to add a Priority Frontier in the future for heuristic search, we could do so without changing the internal logic of WikiExplorer.</p>
 <p>The code below demonstrates that the same explorer can be initialized with different frontier objects while keeping the rest of the system unchanged.</p>
-<div id="d2e24175" class="cell" data-execution_count="7">
+<div id="908583b2" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src <span class="im">import</span> WikiExplorer, WikiScraper</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>scraper <span class="op">=</span> WikiScraper(delay<span class="op">=</span><span class="fl">0.2</span>)</span>
@@ -2599,7 +2599,7 @@ DFS explorer uses: DFSFrontier</code></pre>
 <p>This design also connects back to a concept from the BST homework. In the BST, searching for an item could be done in approximately O(log n) time when the tree is balanced. In the Wikipedia explorer, we use a Python <code>set</code> for visited tracking, which provides average O(1) lookup through hashing. This makes repeated membership checks much more efficient for large graphs.</p>
 <p>The graph itself is stored using an adjacency list. This means that for each page, the system stores a list of neighboring pages that can be reached directly from it. This structure is efficient for traversal because the explorer only needs to retrieve the neighbors of the current page instead of storing a large adjacency matrix for the entire network.</p>
 <p>The <code>WikiGraph</code> class maintains three main components: the <code>adjacency</code> dictionary records directed edges between pages, the <code>visited</code> set stores pages that have already been explored, and the <code>parents</code> dictionary records how each page was reached during traversal. The <code>parents</code> dictionary is especially important for shortest-path reconstruction. When the explorer reaches a target page, it can trace backwards through the parent chain to rebuild the full path from the starting page.</p>
-<div id="13dbf264" class="cell" data-execution_count="8">
+<div id="4eb6cd7f" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src <span class="im">import</span> WikiGraph</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>graph <span class="op">=</span> WikiGraph()</span>
@@ -2626,7 +2626,7 @@ Neighbors of Data science:
 <p>However, the full project uses live Wikipedia data rather than manually created examples. This is handled by the WikiScraper class.</p>
 <p>The WikiScraper takes a Wikipedia page title, downloads the HTML of that page, identifies the main article content, extracts all internal article links, removes duplicates, and returns the results as a list of neighboring page titles.</p>
 <p>This means that the children of a node are no longer fixed attributes like left and right. Instead, they are generated dynamically through live hyperlinks.</p>
-<div id="1395d0e8" class="cell" data-execution_count="9">
+<div id="01d73e3d" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src <span class="im">import</span> WikiScraper</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>scraper <span class="op">=</span> WikiScraper(delay<span class="op">=</span><span class="fl">0.2</span>)</span>
@@ -2720,7 +2720,7 @@ Neighbors of Data science:
 <li>Maximum depth: <code>2</code></li>
 </ul>
 <p>This ensures that any difference in the discovered graph comes from the traversal strategy itself rather than different stopping conditions.</p>
-<div id="d694b3d8" class="cell" data-execution_count="10">
+<div id="1430098f" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src <span class="im">import</span> BFSFrontier, DFSFrontier, WikiScraper, WikiExplorer</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>START_PAGE <span class="op">=</span> <span class="st">&quot;Data science&quot;</span></span>
@@ -2750,7 +2750,7 @@ Neighbors of Data science:
 <span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>dfs_graph <span class="op">=</span> dfs_explorer.explore(START_PAGE)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>After both explorations finish, we compare the visited pages.</p>
-<div id="ffc27035" class="cell" data-execution_count="11">
+<div id="9e4f1c84" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>bfs_only <span class="op">=</span> bfs_graph.visited <span class="op">-</span> dfs_graph.visited</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>dfs_only <span class="op">=</span> dfs_graph.visited <span class="op">-</span> bfs_graph.visited</span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>shared <span class="op">=</span> bfs_graph.visited <span class="op">&amp;</span> dfs_graph.visited</span>
@@ -2769,7 +2769,7 @@ Pages visited by DFS only: 29</code></pre>
 </div>
 </div>
 <p>We also inspect some example pages that appear only in one traversal.</p>
-<div id="22c9aa1d" class="cell" data-execution_count="12">
+<div id="65e76877" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Example pages visited only by BFS:&quot;</span>)</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> page <span class="kw">in</span> <span class="bu">sorted</span>(bfs_only)[:<span class="dv">10</span>]:</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;-&quot;</span>, page)</span>
@@ -2816,7 +2816,7 @@ Example pages visited only by DFS:
 <p>This feature uses Breadth-First Search rather than Depth-First Search. The reason is that BFS explores nodes in order of increasing distance from the start page. It first checks all pages that are one click away, then all pages that are two clicks away, then three clicks away, and so on. Therefore, the first time BFS reaches the target page, that path is guaranteed to be the shortest path within the explored search space.</p>
 <p>DFS does not provide the same guarantee. A depth-first search may eventually find a path to the target, but it could find a longer path before discovering a shorter one. For shortest-path discovery in an unweighted graph, BFS is the appropriate traversal strategy.</p>
 <p>In this example, we search for the shortest path from <code>&quot;Data science&quot;</code> to <code>&quot;Deep learning&quot;</code>.</p>
-<div id="7ea4909b" class="cell" data-execution_count="13">
+<div id="0acb9cdb" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src <span class="im">import</span> BFSFrontier, WikiScraper, WikiExplorer</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>START <span class="op">=</span> <span class="st">&quot;Data science&quot;</span></span>
@@ -2855,7 +2855,7 @@ TARGET: Deep learning</code></pre>
 </div>
 <p>The output shows the sequence of Wikipedia pages that connects the starting page to the target page. The number of hops is calculated as the number of edges in the path, which is one fewer than the number of pages in the path.</p>
 <p>To test the feature more broadly, we can try several different start and target pairs. Some pairs are closely related and may be found quickly, while others require more intermediate concepts or may not be found within the page limit.</p>
-<div id="0ef050b9" class="cell" data-execution_count="14">
+<div id="4fc7e665" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>pairs <span class="op">=</span> [</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    (<span class="st">&quot;Data science&quot;</span>, <span class="st">&quot;Dinosaur&quot;</span>),</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    (<span class="st">&quot;Machine learning&quot;</span>, <span class="st">&quot;Ancient Rome&quot;</span>),</span>
@@ -2932,7 +2932,7 @@ Reconstruct the path using parent links</code></pre>
 </ul>
 <p>Intuitively, we expect topics like Machine learning and Statistics to be closer to Data science, while topics like Ancient Rome or Shakespeare should require more intermediate pages. The goal of this feature is to test that intuition using actual hyperlink paths rather than assumptions.</p>
 <p>For each target page, the system runs BFS starting from the center page, stops when the target page is found, records the shortest path and total hop count, and then repeats the same process for all remaining targets. The final distances are then compared across all concepts.</p>
-<div id="a6656552" class="cell" data-execution_count="15">
+<div id="d3dc1637" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src <span class="im">import</span> WikiMindmap, WikiScraper</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>CENTER <span class="op">=</span> <span class="st">&quot;Data science&quot;</span></span>
@@ -2976,7 +2976,7 @@ William Shakespeare                          –  (not found within 200 pages)
 </div>
 <p>The summary table reports the shortest-path result for each target. Topics with fewer hops are conceptually closer inside Wikipedia’s link structure. Topics with more hops require passing through more intermediate concepts before they can be reached.</p>
 <p>We can also identify the closest and farthest targets automatically.</p>
-<div id="59855b4a" class="cell" data-execution_count="16">
+<div id="0b685550" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>closest <span class="op">=</span> mindmap.closest()</span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>farthest <span class="op">=</span> mindmap.farthest()</span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -2997,7 +2997,7 @@ Path: Data science → Information science → Philosophy</code></pre>
 </div>
 <p>This helps transform the output from a simple path list into an interpretable comparison of conceptual distance.</p>
 <p>To make the result more intuitive, the project visualizes the knowledge map as a radial graph.</p>
-<div id="43343351" class="cell" data-execution_count="17">
+<div id="4c1ee372" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>mindmap.visualize(figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">11</span>), save_path<span class="op">=</span><span class="st">&quot;mindmap.png&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Saved to mindmap.png</code></pre>

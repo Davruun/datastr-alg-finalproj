@@ -11,7 +11,7 @@ title-block-banner: "#0a0e1a"
 title-block-banner-color: "#4DB8FF"
 execute:
   warning: false
-date: 2025-04-28
+date: 2026-04-30
 date-modified: last-modified
 format:
   html:
