@@ -6,8 +6,6 @@ Fast & Easy demo of BFS exploration vs DFS exploration
 Run from the project root with:
     python3 run_example.py
 
-What to watch for
------------------
 BFS  — pages are visited layer by layer. All direct links from
        "Data science" come first (~200 pages), then their links,
        then those links' links. The visited set stays wide and close
@@ -15,7 +13,7 @@ BFS  — pages are visited layer by layer. All direct links from
 
 DFS  — immediately dives into the FIRST link it finds and follows
        that chain as deep as possible before backtracking. Within
-       the first 20 pages you'll likely be far from "Data science" —
+       the first 20 pages likely be far from "Data science" —
        possibly in history, philosophy, or something surprising.
 """
 

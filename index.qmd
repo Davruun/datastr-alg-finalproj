@@ -34,22 +34,36 @@ jupyter: wiki-bfs-workspace
 
 ## Abstract
 
-This project builds a polymorphic Wikipedia graph explorer that extends traversal concepts from binary search trees to a real-world knowledge network. In the DSAN 5500 homework, we practiced using stacks and queues to change the traversal behavior of a binary search tree. This project takes that same idea and applies it to Wikipedia, where articles are treated as nodes and hyperlinks are treated as directed edges. The central design of the project is a flexible `WikiExplorer` class that depends on a general `Frontier` interface rather than a fixed traversal strategy. By passing in a `BFSFrontier` or a `DFSFrontier`, the same explorer can behave differently without rewriting its core logic. This demonstrates object-oriented polymorphism in a practical setting.
+Browsing Wikipedia, I have a habit: I open every interesting link in a new tab, then read them one by one before closing them. I can end up with 10, 15, even 20 tabs — all stemming from the original article I started with. I stay close to the source topic. I don't get lost. While my teammate Troy does the exact opposite of click a link, read it, click another link inside *that* article, read it, and keep going. He never open a new tab. An hour later he would have completely forgotten what they originally searched for and are deep in some unrelated corner of the internet fascinated.
 
-The project has three main features. First, it compares BFS and DFS exploration from the same starting Wikipedia page to show how different frontier structures lead to different discovery patterns. Second, it implements a shortest-path search inspired by the Wikipedia game, using BFS to find the minimum number of hyperlink clicks between two articles. Third, it builds a knowledge mindmap that measures the hyperlink distance between a central topic and several target topics. Together, these features show how foundational data structures and algorithms from class can be adapted to explore a large, interconnected information system. The project therefore bridges course concepts such as binary search trees, stacks, queues, graph traversal, and object-oriented design with a real-world application.
+We then realized that these two browsing styles are literally **Breadth-First Search** and **Depth-First Search**.
+
+- **Tab-hoarder (BFS):** Queue up all the links first, read them layer by layer. Stay close to the original topic.
+- **Rabbit-hole diver (DFS):** Follow each link immediately before finishing the current one. Dive deep, drift far.
+
+This project turns our observation into code. We built a **Wikipedia Graph Explorer** that treats articles as nodes and hyperlinks as edges. By swapping one object — a `Queue` for a `Stack` — the same explorer can either stay close to home like a tab-hoarder, or wander into unknown territory like a rabbit-hole diver. The core question: *Does that one swap actually change what you discover?* The answer turns out to be YES!
+
+We built three features on top of this: 
+- a BFS-vs-DFS exploration comparison 
+- a shortest-path finder (the automated Wikipedia game)
+- a knowledge distance mindmap demoed on Georgetown University at its center
 
 ## Research Question
 
-This project asks the following research question:
+**How can BFS, DFS, and object-oriented polymorphism be used to explore, compare, and map knowledge connections in Wikipedia as a graph?**
 
-**How can BFS, DFS, and object-oriented polymorphism be used to explore, compare, and map knowledge connections in Wikipedia as a graph-based information network?**
+More concretely:
 
-To answer this question, we model Wikipedia as a directed graph, compare how BFS and DFS behave when exploring the same starting page, use BFS to solve shortest-path problems, and build a knowledge mindmap that visualizes conceptual distance through hyperlink paths.
+- Does changing Stack → Queue actually change *which* Wikipedia pages you discover?
+
+- How many clicks does it take to get from any article to any other article?
+
+- How "far" is Georgetown University from Ancient Rome, Dinosaurs, or Data science measured in hyperlink hops?
 
 
 ## Course Foundations: BST Traversal
 
-The foundation of this project comes directly from the Binary Search Tree (BST) traversal exercises in the DSAN 5500 homework. In the original assignment, we built a `BinarySearchTree` composed of linked `BSTNode` objects and used a `ThingContainer` abstraction to control traversal order. By choosing either a `Stack` or a `Queue`, the same traversal engine could behave like Depth-First Search (DFS) or Breadth-First Search (BFS).
+The foundation of this project comes directly from the Binary Search Tree (BST) traversal exercises in the DSAN 5500 homework 3. In the original assignment, we built a `BinarySearchTree` composed of linked `BSTNode` objects and used a `ThingContainer` abstraction to control traversal order. By choosing either a `Stack` or a `Queue`, the same traversal engine could behave like Depth-First Search (DFS) or Breadth-First Search (BFS).
 
 This was the first important idea that shaped our final project. We realized that traversal algorithms are not limited to trees. They are general strategies for exploring structured systems. What changes is not the algorithm itself, but the definition of what counts as a node and what counts as a child.
 
@@ -148,29 +162,29 @@ from src import WikiScraper, WikiGraph, WikiNode
 
 graph = WikiGraph()
 
-graph.mark_visited("Data science")
-graph.add_edge("Data science", "Machine learning")
-graph.add_edge("Data science", "Statistics")
-graph.add_edge("Data science", "Artificial intelligence")
+graph.mark_visited("Cat")
+graph.add_edge("Cat", "Felidae")
+graph.add_edge("Cat", "Mammal")
+graph.add_edge("Cat", "Carnivore")
 
 print(graph)
-print("Neighbors of Data science:")
-for neighbor in graph.neighbors("Data science"):
+print("Neighbors of Cat:")
+for neighbor in graph.neighbors("Cat"):
     print("-", neighbor)
 
 ```
 
-The small example above shows the graph representation without needing to scrape live Wikipedia pages. Data science is marked as a visited node, and three outgoing edges are added to represent hyperlinks from that page to other concepts. Internally, the WikiGraph stores these relationships as an adjacency list. This is a natural structure for graph traversal because it allows the explorer to quickly retrieve the neighboring pages of any page it has already processed.
+This toy example builds the graph manually — no network calls needed. "Cat" is marked as visited, and three edges represent hyperlinks found on the Cat Wikipedia page. Internally, `WikiGraph` stores these as an adjacency list, so the explorer can quickly look up which pages can be reached from "Cat."
 
-The actual project uses WikiScraper to collect these neighbors from live Wikipedia pages. Given a page title, the scraper requests the HTML for that page, extracts internal Wikipedia article links, removes duplicates, and returns the page titles as a list. These returned links become the next possible nodes for the traversal.
-
+In the real project, `WikiScraper` generates these neighbor lists automatically by downloading and parsing Wikipedia HTML:
 
 ```{python}
+#| cache: true
 scraper = WikiScraper(delay=0.2)
 
-links = scraper.get_links("Data science")[:10]
+links = scraper.get_links("Cat")[:10]
 
-print("First 10 internal Wikipedia links found from 'Data science':")
+print("First 10 internal Wikipedia links found on the 'Cat' page:")
 for link in links:
     print("-", link)
 
@@ -300,34 +314,29 @@ from src import WikiGraph
 
 graph = WikiGraph()
 
-graph.mark_visited("Data science")
-graph.add_edge("Data science", "Machine learning")
-graph.add_edge("Data science", "Statistics")
-graph.add_edge("Data science", "Artificial intelligence")
+graph.mark_visited("Cat")
+graph.add_edge("Cat", "Felidae")
+graph.add_edge("Cat", "Mammal")
+graph.add_edge("Cat", "Carnivore")
 
 print(graph)
-print("Neighbors of Data science:")
+print("Neighbors of Cat:")
 
-for neighbor in graph.neighbors("Data science"):
+for neighbor in graph.neighbors("Cat"):
     print("-", neighbor)
 ```
 
-The small example above demonstrates the internal graph representation without needing to connect to live Wikipedia pages. The page “Data science” becomes a source node, and three outgoing edges are recorded as neighboring concepts.
-
-However, the full project uses live Wikipedia data rather than manually created examples. This is handled by the WikiScraper class.
-
-The WikiScraper takes a Wikipedia page title, downloads the HTML of that page, identifies the main article content, extracts all internal article links, removes duplicates, and returns the results as a list of neighboring page titles.
-
-This means that the children of a node are no longer fixed attributes like left and right. Instead, they are generated dynamically through live hyperlinks.
+We manually built a tiny 3-node graph centered on "Cat." In the full project, these edges come from live Wikipedia scraping — the explorer builds this graph automatically as it visits pages.
 
 ```{python}
+#| cache: true
 from src import WikiScraper
 
 scraper = WikiScraper(delay=0.2)
 
-links = scraper.get_links("Data science")[:10]
+links = scraper.get_links("Cat")[:10]
 
-print("First 10 internal Wikipedia links found from 'Data science':")
+print("First 10 internal Wikipedia links found on the 'Cat' page:")
 
 for link in links:
     print("-", link)
@@ -353,30 +362,21 @@ This modeling step is the conceptual center of the project. We are not simply us
 
 ## Feature 1: BFS vs DFS Exploration
 
-The first major experiment of this project compares Breadth-First Search (BFS) and Depth-First Search (DFS) using the same starting Wikipedia page: `"Data science"`.
+Remember the tab-hoarder vs. the rabbit-hole diver from the Abstract? This experiment is literally that — automated.
 
-The purpose of this comparison is to demonstrate that changing only the frontier structure can significantly change what the explorer discovers. The traversal algorithm itself remains the same. The only difference is whether the system uses a queue-based frontier (`BFSFrontier`) or a stack-based frontier (`DFSFrontier`).
+We run both BFS and DFS starting from the same Wikipedia page (`"Cat"`) with the same 20-page limit. The only difference is the frontier object we pass in: `BFSFrontier()` (wrapping a Queue) vs. `DFSFrontier()` (wrapping a Stack). Every other line of code is identical.
 
-This experiment is the clearest demonstration of polymorphism in the project. The same `WikiExplorer` class runs both searches, but because the frontier object changes, the behavior of the traversal changes as well.
+**BFS — the tab-hoarder:** Queues up all links from "Cat" before moving on. Reads them layer by layer. Stays close to the original topic.
 
-BFS uses a queue and follows first-in, first-out (FIFO) behavior. This means it explores pages layer by layer. Starting from `"Data science"`, BFS first visits all directly linked pages before moving deeper into second-level links. As a result, BFS tends to remain close to the original topic and produces a wide but shallow exploration.
-
-DFS uses a stack and follows last-in, first-out (LIFO) behavior. This means it always explores the most recently discovered page next. Starting from the same page, DFS quickly dives into one branch of links and may move far away from the original topic before returning. This produces a narrow but deep exploration.
-
-To make the comparison fair, both searches use the same configuration:
-
-- Starting page: `"Data science"`
-- Maximum pages visited: `30`
-- Maximum depth: `2`
-
-This ensures that any difference in the discovered graph comes from the traversal strategy itself rather than different stopping conditions.
+**DFS — the rabbit-hole diver:** Follows the first link it finds immediately, then the first link from *that* page, and so on. Never comes back to the tab it didn't open. Wanders fast, wanders far.
 
 ```{python}
+#| cache: true
 from src import BFSFrontier, DFSFrontier, WikiScraper, WikiExplorer
 
-START_PAGE = "Data science"
-MAX_PAGES = 30
-MAX_DEPTH = 2
+START_PAGE = "Cat"
+MAX_PAGES  = 20
+MAX_DEPTH  = 2
 
 scraper = WikiScraper(delay=0.2)
 
@@ -387,7 +387,6 @@ bfs_explorer = WikiExplorer(
     max_depth=MAX_DEPTH,
     verbose=False
 )
-
 bfs_graph = bfs_explorer.explore(START_PAGE)
 
 dfs_explorer = WikiExplorer(
@@ -397,273 +396,221 @@ dfs_explorer = WikiExplorer(
     max_depth=MAX_DEPTH,
     verbose=False
 )
-
 dfs_graph = dfs_explorer.explore(START_PAGE)
-
 ```
-
-After both explorations finish, we compare the visited pages.
 
 ```{python}
 bfs_only = bfs_graph.visited - dfs_graph.visited
 dfs_only = dfs_graph.visited - bfs_graph.visited
-shared = bfs_graph.visited & dfs_graph.visited
+shared   = bfs_graph.visited & dfs_graph.visited
 
-print(f"BFS result: {bfs_graph}")
-print(f"DFS result: {dfs_graph}")
-print(f"Pages visited by both: {len(shared)}")
+print(f"Pages visited by BOTH:     {len(shared)}")
 print(f"Pages visited by BFS only: {len(bfs_only)}")
 print(f"Pages visited by DFS only: {len(dfs_only)}")
-
+print()
+print("BFS-only sample:", sorted(bfs_only)[:5])
+print("DFS-only sample:", sorted(dfs_only)[:5])
 ```
 
-We also inspect some example pages that appear only in one traversal.
+When we actually ran this, BFS stayed in biology: Felidae, Mammal, Carnivora, Precambrian, Taxonomy. Every page made sense for "Cat."
 
-```{python}
-print("Example pages visited only by BFS:")
-for page in sorted(bfs_only)[:10]:
-    print("-", page)
+DFS by page 20 had landed at: *ZooBank → Wikidata → Wikipedia for World Heritage → Tides Foundation → Monkey selfie copyright dispute → Running of the Nudes → Douche and Turd → I Am an Animal.*
 
-print("\nExample pages visited only by DFS:")
-for page in sorted(dfs_only)[:10]:
-    print("-", page)
-```
+Starting from "Cat." The two searches shared only 1 page (Cat itself). This is the whole point — **one line of code change** (`BFSFrontier()` → `DFSFrontier()`) produces a completely different knowledge map.
 
-In most cases, the BFS-only pages remain strongly related to data science, such as statistics, machine learning, or data analysis topics. This is because BFS prioritizes pages that are close to the starting article.
+![BFS stays close to "Cat" (biology topics); DFS wanders far within 20 pages](notebooks/exploration_comparison.png)
 
-The DFS-only pages often look more surprising. Because DFS follows one branch deeply before returning, it may quickly reach pages in history, philosophy, politics, or other unrelated areas. These pages are still connected through hyperlinks, but they are conceptually much farther away from the original topic.
-
-This shows an important result: BFS and DFS do not simply visit the same graph in a different order. Under page limits and depth limits, they can actually discover different parts of the graph.
-
-This is why the frontier abstraction matters. The explorer code does not change, but the knowledge map produced by the system changes significantly depending on which frontier object is used.
-
-This section demonstrates that data structures are not just implementation details. The choice between a stack and a queue changes the behavior of the entire system and changes what knowledge becomes visible first.
+The visualization confirms it visually. BFS produces a wide, clustered graph of related biology terms. DFS produces a long chain that drifts away from cats entirely.
 
 
 ## Feature 2: Shortest Path Between Wikipedia Pages
 
-The second feature turns the explorer into a problem-solving tool. Instead of only asking what pages can be discovered from a starting point, this feature asks whether the system can find the shortest path between two Wikipedia articles.
+Ever played the Wikipedia game — clicking hyperlinks trying to get from one article to another in as few clicks as possible? This feature automates that game and reports the exact minimum path.
 
-This is similar to the well-known Wikipedia game, where a player starts from one article and tries to reach another article by clicking hyperlinks. In our project, the computer performs this search automatically. Given a start page and a target page, the system attempts to find the minimum number of hyperlink hops needed to reach the target.
+The key insight is why BFS (not DFS) is correct here. BFS expands outward layer by layer — first all pages 1 click away, then 2 clicks, then 3 clicks. So the *first* time it reaches the target, that path is guaranteed to be the shortest. DFS might find *a* path but not necessarily the *shortest* one.
 
-This feature uses Breadth-First Search rather than Depth-First Search. The reason is that BFS explores nodes in order of increasing distance from the start page. It first checks all pages that are one click away, then all pages that are two clicks away, then three clicks away, and so on. Therefore, the first time BFS reaches the target page, that path is guaranteed to be the shortest path within the explored search space.
+One important note: "hops" means the number of links clicked, not the number of pages checked. `Cat → Felidae → Science` is 2 hops but required checking hundreds of pages. Think of it like Google Maps — 2 turns doesn't mean 2 miles driven.
 
-DFS does not provide the same guarantee. A depth-first search may eventually find a path to the target, but it could find a longer path before discovering a shorter one. For shortest-path discovery in an unweighted graph, BFS is the appropriate traversal strategy.
-
-In this example, we search for the shortest path from `"Data science"` to `"Deep learning"`.
+In this first example, we search from `"Cat"` to `"Science"`:
 
 ```{python}
+#| cache: true
 from src import BFSFrontier, WikiScraper, WikiExplorer
 
-START = "Data science"
-TARGET = "Deep learning"
+START  = "Cat"
+TARGET = "Science"
 
-path_explorer = WikiExplorer(
+# max_pages guide:
+#   closely related (e.g. Data science → Deep learning) : 100-200
+#   loosely related (e.g. Cat → Science)                : 300-500
+#   very distant   (e.g. Cat → Ancient Rome)            : 500-1000 (slow, ~5 min)
+
+explorer = WikiExplorer(
     frontier=BFSFrontier(),
     scraper=WikiScraper(delay=0.2),
-    verbose=False
+    verbose=False,
 )
 
-path = path_explorer.shortest_path(
-    start=START,
-    target=TARGET,
-    max_pages=200
-)
+path = explorer.shortest_path(START, TARGET, max_pages=400)
 
 if path:
-    print(f"Shortest path ({len(path) - 1} hops):")
+    print(f"Shortest path: {len(path) - 1} hops")
     for i, page in enumerate(path):
-        if i == 0:
-            label = "START"
-        elif i == len(path) - 1:
-            label = "TARGET"
-        else:
-            label = f"STEP {i}"
-        print(f"{label}: {page}")
+        arrow = "START  " if i == 0 else ("TARGET " if i == len(path)-1 else f"step {i}  ")
+        print(f"  {arrow} → {page}")
 else:
     print("No path found within the page limit.")
 ```
 
-The output shows the sequence of Wikipedia pages that connects the starting page to the target page. The number of hops is calculated as the number of edges in the path, which is one fewer than the number of pages in the path.
+![The graph above shows the full BFS search tree — the highlighted red path is the shortest route found](notebooks/shortest_path.png)
 
-To test the feature more broadly, we can try several different start and target pairs. Some pairs are closely related and may be found quickly, while others require more intermediate concepts or may not be found within the page limit.
+We can also search multiple pairs at once to compare distances across very different topics:
 
 ```{python}
-pairs = [
-    ("Data science", "Dinosaur"),
-    ("Machine learning", "Ancient Rome"),
-    ("Python (programming language)", "Shakespeare"),
+#| cache: true
+from src import BFSFrontier, WikiScraper, WikiExplorer
+
+PAIRS = [
+    # (start, target, max_pages)
+    # Close topics — fast (< 30 s)
+    ("Data science",   "Deep learning",  200),
+    ("Data science",   "Statistics",     200),
+    # Medium/far — how far can Cat reach?
+    ("Cat",            "Ancient Rome",   500),
+    ("Cat",            "Dinosaur",       500),
 ]
 
 scraper = WikiScraper(delay=0.2)
 
-for start, target in pairs:
-    explorer = WikiExplorer(
-        frontier=BFSFrontier(),
-        scraper=scraper,
-        verbose=False
-    )
-
-    pair_path = explorer.shortest_path(
-        start=start,
-        target=target,
-        max_pages=150
-    )
-
-    if pair_path:
-        print(f"{start!r} → {target!r}: {len(pair_path) - 1} hops")
-        print("Path:", " → ".join(pair_path))
+for start, target, limit in PAIRS:
+    exp = WikiExplorer(frontier=BFSFrontier(), scraper=scraper, verbose=False)
+    p   = exp.shortest_path(start, target, max_pages=limit)
+    if p:
+        print(f"{start!r:30s} → {target!r}: {len(p)-1} hops")
+        print("  Path:", " → ".join(p))
     else:
-        print(f"{start!r} → {target!r}: NOT FOUND within page limit")
+        print(f"{start!r} → {target!r}: NOT FOUND within {limit} pages")
     print()
 ```
 
-This experiment highlights the difference between graph exploration and graph search. In the previous section, BFS and DFS were used to explore and compare what each traversal strategy discovers. Here, BFS is used for a more specific task: finding the minimum-hop connection between two nodes.
-
-The shortest-path feature also shows why the `parents` dictionary in `WikiGraph` and the `parent_map` inside `shortest_path()` matter. During BFS, each newly discovered page records the page from which it was reached. Once the target is found, the system can walk backward through these parent relationships and reconstruct the full path from the start page to the target page.
-
-Conceptually, the process works like this:
+The `parents` dictionary is what makes path reconstruction possible. During BFS, every time we discover a new page, we record which page we came from. Once BFS lands on the target, we trace those parent pointers backward to rebuild the full path:
 
 ```{text}
-Start page
-↓
-Explore all pages one click away
-↓
-Explore all pages two clicks away
-↓
-Continue outward layer by layer
-↓
-Stop when the target page is first found
-↓
-Reconstruct the path using parent links
+Science  ← Felidae  ← Cat
 ```
 
-This feature gives the project a clear algorithmic result. The system is not only browsing Wikipedia. It is solving a graph problem. By modeling articles as nodes and hyperlinks as unweighted edges, the shortest-path task becomes a direct application of BFS.
+becomes `["Cat", "Felidae", "Science"]` — 2 hops.
 
 
 ## Feature 3: Knowledge Mindmap
 
-The final major feature of this project extends the shortest-path idea into a broader knowledge mapping tool. Instead of finding the shortest path between one starting page and one target page, this feature asks a larger question:
+The mindmap is probably the most interesting output of the whole project, because it lets you ask: **"How far is Georgetown University from everything else?"**
 
-**How far is everything from what we care about?**
-
-This feature is implemented through the `WikiMindmap` class. Starting from one central Wikipedia article, the system searches for multiple target pages and measures how many hyperlink hops are needed to reach each one. The result is a knowledge distance map that shows which concepts are closely connected and which are conceptually far away.
-
-This transforms BFS from a shortest-path algorithm into a tool for measuring conceptual distance inside Wikipedia’s knowledge network.
-
-In this example, we use `"Data science"` as the center topic and compare its distance to several related and unrelated concepts:
-
-- Machine learning  
-- Artificial intelligence  
-- Statistics  
-- Ancient Rome  
-- Dinosaur  
-- Philosophy  
-- William Shakespeare
-
-Intuitively, we expect topics like Machine learning and Statistics to be closer to Data science, while topics like Ancient Rome or Shakespeare should require more intermediate pages. The goal of this feature is to test that intuition using actual hyperlink paths rather than assumptions.
-
-For each target page, the system runs BFS starting from the center page, stops when the target page is found, records the shortest path and total hop count, and then repeats the same process for all remaining targets. The final distances are then compared across all concepts.
+We pick **Georgetown University** as the center and run BFS to several targets — some we expect to be close (mascot, founder, home city), and some we expect to be far (Dinosaur, Ancient Rome). The mindmap shows the actual hyperlink distances, which is often surprising.
 
 ```{python}
+#| cache: true
 from src import WikiMindmap, WikiScraper
 
-CENTER = "Data science"
+CENTER = "Georgetown University"
 
 TARGETS = [
-    "Machine learning",
-    "Artificial intelligence",
-    "Statistics",
-    "Ancient Rome",
-    "Dinosaur",
-    "Philosophy",
-    "William Shakespeare",
+    "Bulldog",                               # Georgetown's mascot — expected close
+    "John Carroll (archbishop of Baltimore)", # Georgetown's founder — expected close
+    "Washington, D.C.",                      # Georgetown's home city — expected close
+    "Data science",                          # Georgetown's DSAN program — expected moderate
+    "Ancient Rome",                          # Jesuit connection — expected moderate
+    "Dinosaur",                              # unrelated — expected far
 ]
+
+scraper = WikiScraper(delay=0.1)
 
 mindmap = WikiMindmap(
     center=CENTER,
-    scraper=WikiScraper(delay=0.2),
-    max_pages=200,
-    verbose=False
+    scraper=scraper,
+    max_pages=500,   # ~2-3 min total; distant targets need more budget
+    verbose=False,
 )
 
 mindmap.build(TARGETS)
 mindmap.summary()
 ```
 
-The summary table reports the shortest-path result for each target. Topics with fewer hops are conceptually closer inside Wikipedia’s link structure. Topics with more hops require passing through more intermediate concepts before they can be reached.
-
-We can also identify the closest and farthest targets automatically.
-
 ```{python}
-closest = mindmap.closest()
+closest  = mindmap.closest()
 farthest = mindmap.farthest()
 
 if closest:
-    print(f"Closest target: {closest.target} ({closest.hops} hops)")
-    print("Path:", " → ".join(closest.path))
+    print(f"Closest:  {closest.target}  ({closest.hops} hops)")
+    print("  Path:", " → ".join(closest.path))
 
 if farthest:
-    print(f"\nFarthest target: {farthest.target} ({farthest.hops} hops)")
-    print("Path:", " → ".join(farthest.path))
+    print(f"\nFarthest: {farthest.target}  ({farthest.hops} hops)")
+    print("  Path:", " → ".join(farthest.path))
 ```
-
-
-This helps transform the output from a simple path list into an interpretable comparison of conceptual distance.
-
-To make the result more intuitive, the project visualizes the knowledge map as a radial graph.
 
 ```{python}
-mindmap.visualize(figsize=(15, 11), save_path="mindmap.png")
+mindmap.visualize(figsize=(15, 11), save_path="notebooks/mindmap.png")
 ```
 
-In the visualization:
+![Knowledge distance map centered on Georgetown University. Red = center, green = targets, blue = intermediate pages.](notebooks/mindmap.png)
 
-- the red node represents the center topic
-- the green nodes represent the target pages
-- the blue nodes represent intermediate pages along shortest paths
-- arrows represent the direction of hyperlink traversal
+**How to read the visualization:**
 
-Targets with fewer hops appear conceptually closer because fewer intermediate ideas are needed to connect them. Targets with many hops are farther away in Wikipedia’s structure and usually require moving through more unrelated domains.
+- **Red node** — Georgetown University (the center)
+- **Green nodes** — the target articles we searched for
+- **Blue nodes** — intermediate Wikipedia pages that appeared on the shortest paths
+- **Arrows** — direction of the hyperlink (A → B means A's page links to B)
 
-This feature demonstrates that graph traversal can be used not only for navigation, but also for interpretation. Instead of asking only how to reach a page, we can ask how strongly two concepts are connected inside a knowledge system.
+**What we actually found:**
 
-Compared with the shortest-path feature in the previous section, the mindmap provides a more analytical perspective. It allows the explorer to compare multiple concepts at once and turns BFS into a tool for understanding the structure of knowledge itself.
+- **Bulldog, Washington D.C., John Carroll** land at 1–2 hops — Georgetown's own Wikipedia page links to them directly
+- **Data science** is 2–3 hops — connected through the DSAN / academic research chain
+- **Ancient Rome** surprises people: reachable in just 2 hops via the Jesuit connection (Georgetown → Society of Jesus → Ancient Rome). The Jesuit order traces its intellectual roots to Roman Catholic scholasticism.
+- **Dinosaur** is the farthest — typically 3+ hops through natural history or academic classification
 
-This is one of the strongest parts of the project because it moves beyond implementation and into interpretation. The output is not only technically correct, but also meaningful for understanding how information is organized across Wikipedia.
+This turns BFS from a navigation tool into a *conceptual distance meter*. The output is no longer just "here's a path" — it's a window into how Wikipedia's link structure connects Georgetown to the rest of human knowledge.
 
 
 ## Discussion
 
-This project demonstrates that traversal algorithms are not limited to textbook examples such as binary search trees. The same logic can be extended to a much larger and less predictable structure like Wikipedia. The most important insight is that the traversal pattern itself remains stable, while the meaning of nodes, children, and relationships changes depending on the system being explored.
+Looking back at what we built, the thing that surprised us most was **how much the frontier choice actually matters in practice**. We expected BFS and DFS to explore the same graph in different orders. We didn't expect them to end up in completely different neighborhoods after just 20 pages. Starting from "Cat," BFS was still talking about Felidae and Carnivora. DFS was at *Douche and Turd* (a South Park episode). Same starting point. Same code. One line changed.
 
-In the original BST homework, traversal meant moving through a tree with fixed left and right children. In this project, traversal means moving through a graph where each page dynamically generates its own neighboring nodes through hyperlinks. This shift from a static tree to a dynamic graph makes the system more realistic and also introduces new challenges such as cycles, repeated visits, and the need for path reconstruction.
+That's the core insight of this project: **data structures are not neutral containers**. Choosing a Stack vs. a Queue isn't just an implementation detail — it fundamentally changes what the system discovers first, and under page/depth limits, it changes what the system discovers *at all*.
 
-One important finding of the project is that data structures are not only implementation details. The choice between a stack and a queue changes the behavior of the entire exploration system. BFS and DFS do not simply visit the same graph in a different order. Under page limits and depth limits, they can discover meaningfully different parts of the knowledge network. BFS tends to remain close to the starting concept and preserves local relevance, while DFS may quickly move into unexpected or conceptually distant areas. This shows that traversal strategy directly affects what information becomes visible first.
+The Georgetown mindmap was another surprise. Ancient Rome is only 2 hops away from Georgetown University — not because of geography or subject matter, but because the Jesuit intellectual tradition links Georgetown's Wikipedia page to the Society of Jesus, which links directly to Ancient Rome's scholarship and history. This isn't something you'd figure out by thinking about it. The graph search reveals it.
 
-Another important result is that object-oriented design improves both clarity and extensibility. By introducing the abstract `Frontier` interface, the project separates traversal strategy from traversal execution. `WikiExplorer` does not need separate logic for BFS and DFS. It only depends on a shared set of operations such as `add()`, `pop()`, and `is_empty()`. This makes the system easier to maintain and easier to extend. A new traversal strategy such as heuristic search or priority-based search could be added later without rewriting the explorer itself.
+**What didn't work perfectly:**
 
-The shortest-path feature further shows that graph traversal can move beyond exploration and become a problem-solving tool. BFS is not only useful for visiting pages layer by layer, but also for guaranteeing minimum-hop paths between concepts. This transforms the system from a crawler into a graph search engine.
+- Wikipedia's scale means we have to cap `max_pages`. Some paths don't get found even if they exist — we just run out of budget. Increasing `max_pages` helps but makes the search slower.
+- All hyperlinks are treated as equal. "Cat" linking to "Felidae" (its scientific family) and "Cat" linking to "Cats (musical)" are treated as the same-weight edge. In reality they're very different semantically.
+- The scraper depends on Wikipedia's current HTML structure. If Wikipedia changes their page layout, `get_links()` might break silently.
 
-The knowledge mindmap extends this idea even further. Instead of asking how to reach one target page, it asks how multiple concepts are positioned relative to a central topic. This turns graph traversal into a method for interpretation. The output is no longer only a path, but a way of understanding conceptual distance inside a knowledge network.
+**What could be improved:**
 
-There are also limitations in the current implementation. Wikipedia is extremely large, and the project uses page limits and depth limits to keep exploration computationally reasonable. This means that some paths may not be discovered even if they exist. The current scraper also depends on live HTML structure, which may change over time and affect reliability. In addition, all hyperlinks are treated equally, even though some links may be much more meaningful than others.
+- Weighted edges based on link position or frequency (links in the first paragraph probably matter more)
+- A* or greedy search if we had a semantic similarity score to use as a heuristic
+- Caching scraped pages so re-running the same search is faster
+- A live visualization that updates as BFS expands, to show the wavefront spreading outward
 
-Future improvements could include weighted edges, semantic ranking of links, or heuristic search strategies such as A*. This would allow the system to move beyond structural shortest paths and toward more meaningful conceptual paths. Another possible extension would be integrating topic clustering or visualization dashboards for larger-scale knowledge analysis.
-
-Overall, the project shows that foundational concepts from data structures and algorithms can be meaningfully applied to a real information system. Instead of treating stacks, queues, and traversal algorithms as isolated classroom exercises, the project demonstrates how they become powerful tools for exploring and understanding connected knowledge.
 
 ## Conclusion
 
-This project builds a polymorphic Wikipedia graph explorer by extending traversal concepts from binary search trees to a real-world graph structure. Starting from the DSAN 5500 BST homework, we preserved the same traversal logic while redefining the meaning of nodes and children. In place of tree nodes and left-right child relationships, Wikipedia articles became nodes and hyperlinks became directed edges.
+We started this project with a question from homework: *if you swap Stack for Queue in a traversal loop, what changes?* The answer, applied to Wikipedia, turns out to be: **everything**.
 
-The project demonstrates how Breadth-First Search and Depth-First Search produce different exploration behaviors even when using the same explorer engine. By introducing the `Frontier` abstraction, the system uses object-oriented polymorphism to switch traversal strategies without changing the internal logic of `WikiExplorer`. This makes the design both technically correct and structurally flexible.
+The same `WikiExplorer` class, with the same `explore()` method, produces totally different knowledge maps depending on whether you hand it a `BFSFrontier` or a `DFSFrontier`. This isn't abstract polymorphism theory — we ran it and watched BFS stay close to "Cat" while DFS wandered into South Park in under 20 steps.
 
-Three major features were implemented. First, BFS and DFS exploration showed how traversal strategy changes what parts of the graph are discovered first. Second, the shortest-path feature used BFS to solve the Wikipedia game by finding the minimum number of clicks between two articles. Third, the knowledge mindmap extended shortest-path search into a broader conceptual distance map, allowing multiple topics to be compared relative to one central idea.
+The three features each highlight a different way BFS/DFS are useful:
 
-These features show that graph traversal is not only a programming exercise but also a practical method for analyzing how knowledge is connected. The project bridges classroom foundations in data structures, graph algorithms, and object-oriented programming with a real exploratory system built on live Wikipedia data.
+1. **Exploration (Feature 1):** BFS and DFS discover different *subsets* of the graph. Not just different orderings — different pages entirely.
 
-Ultimately, this project demonstrates that the value of algorithms lies not only in correctness or efficiency, but also in how they help us understand complex systems. By turning traversal into exploration, search, and interpretation, the project shows how fundamental computer science concepts can be applied to meaningful real-world problems.
+2. **Shortest path (Feature 2):** BFS is the right tool because it guarantees minimum hops. DFS might find *a* path but not the *shortest* one. "Cat → Science" is 2 hops, but BFS had to check hundreds of pages to prove it.
+
+3. **Knowledge mindmap (Feature 3):** Running BFS from Georgetown University to multiple targets at once reveals surprising conceptual distances. The Jesuit connection puts Ancient Rome closer to Georgetown than Dinosaur, even though Ancient Rome sounds more "distant" intuitively.
+
+The bigger takeaway is that Wikipedia is a massive directed graph, and graph algorithms are the right tool for exploring it. The data structures we learned in class — stacks, queues, BSTs, adjacency lists, visited sets — all show up naturally once you frame the problem correctly. We didn't need to invent anything new. We just had to recognize the structure.
+
+
 
 
 ```{=html}
